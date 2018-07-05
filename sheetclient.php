@@ -80,6 +80,29 @@ $commandtoRange = [
   //,!countupdate is special-cased, below
 ];
 
+//hardcode locations in the sheet - this could be looked up based on the rowindex of column B, but it's faster to hardcode. (saves a network round trip)
+$slice2row = [ 
+  '1.9' => 4
+  ,'2.9' => 5
+  ,'3.9' => 6
+  ,'4.9' => 7
+  ,'5.9' => 8
+  ,'1.8' => 10
+  ,'2.8' => 11
+  ,'3.8' => 12
+  ,'4.8' => 13
+  ,'5.8' => 14
+  ,'1.7' => 16
+  ,'2.7' => 17
+  ,'3.7' => 18
+  ,'4.7' => 19
+  ,'5.7' => 20
+  ,'1.6' => 22
+  ,'2.6' => 23
+  ,'3.6' => 24
+  ,'4.6' => 25
+  ,'5.6' => 26
+];
 
 if (array_key_exists($argv[1], $commandtoRange)) {
   $range = $commandtoRange[$argv[1]];
@@ -90,12 +113,12 @@ if (array_key_exists($argv[1], $commandtoRange)) {
     print "No data found.\n";
   } else {
     foreach ($values as $row) {
-      printf("%s %s%s\t%s (predicted:%s)\n", $row[0], $row[1], $row[2], $row[3], $row[4] );
+      printf("%s %s%-3s\t%s %s\n", $row[0], $row[1], $row[2], $row[3], ($row[4] == ''?'':'(predicted:' + $row[4] + ')') );
     }
   }
-} else if ($argv[1] == '!countupdate'){
-  $countcell = $slice2countcell[$argv[2]];
-  $updatetimecell = $slice2updatetimecell[$argv[2]];
+} else if ($argv[1] == '!countupdate'){ //!countupdate 2.9 338 "7/19/2018 6:22:00"
+  $countcell = 'D'+$slice2row[$argv[2]];
+  $updatetimecell = 'H'+$slice2row[$argv[2]];
   $count = $argv[3];
   $updatetime = $argv[4];
 
