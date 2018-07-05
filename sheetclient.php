@@ -82,27 +82,28 @@ $commandtoRange = [
 
 //hardcode locations in the sheet - this could be looked up based on the rowindex of column B, but it's faster to hardcode. (saves a network round trip)
 $slice2row = [ 
-  '1.9' => 4
-  ,'2.9' => 5
-  ,'3.9' => 6
-  ,'4.9' => 7
-  ,'5.9' => 8
-  ,'1.8' => 10
-  ,'2.8' => 11
-  ,'3.8' => 12
-  ,'4.8' => 13
-  ,'5.8' => 14
-  ,'1.7' => 16
-  ,'2.7' => 17
-  ,'3.7' => 18
-  ,'4.7' => 19
-  ,'5.7' => 20
-  ,'1.6' => 22
-  ,'2.6' => 23
-  ,'3.6' => 24
-  ,'4.6' => 25
-  ,'5.6' => 26
+  '1.9' => '4'
+  ,'2.9' => '5'
+  ,'3.9' => '6'
+  ,'4.9' => '7'
+  ,'5.9' => '8'
+  ,'1.8' => '10'
+  ,'2.8' => '11'
+  ,'3.8' => '12'
+  ,'4.8' => '13'
+  ,'5.8' => '14'
+  ,'1.7' => '16'
+  ,'2.7' => '17'
+  ,'3.7' => '18'
+  ,'4.7' => '19'
+  ,'5.7' => '20'
+  ,'1.6' => '22'
+  ,'2.6' => '23'
+  ,'3.6' => '24'
+  ,'4.6' => '25'
+  ,'5.6' => '26'
 ];
+
 
 if (array_key_exists($argv[1], $commandtoRange)) {
   $range = $commandtoRange[$argv[1]];
@@ -117,22 +118,21 @@ if (array_key_exists($argv[1], $commandtoRange)) {
     }
   }
 } else if ($argv[1] == '!countupdate'){ //!countupdate 2.9 338 "7/19/2018 6:22:00"
-  $countcell = 'D'+$slice2row[$argv[2]];
-  $updatetimecell = 'H'+$slice2row[$argv[2]];
+  $countcell = 'D' . $slice2row[$argv[2]];
+  $updatetimecell = 'H' . $slice2row[$argv[2]];
   $count = $argv[3];
   $updatetime = $argv[4];
 
-  $optParams=[
-    'valueInputOption' => 'USER_ENTERED'
-    ,'includeValuesInResponse' => false
-  ];
   $requestBody = new Google_Service_Sheets_BatchUpdateValuesRequest();
-  $requestBody.setData([
-    ['range' => $countcell, 'values' => [$count]]
-    ,['range' => $updatetimecell, 'values' => [$updatetime]]
+  $requestBody->setData([
+    ['range' => $countcell, 'values' => [[$count]]]
+    ,['range' => $updatetimecell, 'values' => [[$updatetime]]]
   ]);
 
-  $response = $service->spreadsheets_values->batchUpdate($spreadsheetId, $requestBody, $optParams);
+  $requestBody->setValueInputOption('USER_ENTERED');
+  $requestBody->setIncludeValuesInResponse(false);
+
+  $response = $service->spreadsheets_values->batchUpdate($spreadsheetId, $requestBody);
   print "got it";
 
 }
