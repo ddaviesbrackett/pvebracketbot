@@ -15,12 +15,13 @@ foreach ($client->parseEvents() as $event) {
             $message = $event['message'];
             switch ($message['type']) {
                 case 'text':
-                    if(isset($event['source']['groupId']) && $event['source']['groupId'] == $CONF['LISTEN_ROOM_ID'])
+                    $source = $event['source'];
+                    if(isset($source['groupId']) && $source['groupId'] == $CONF['LISTEN_ROOM_ID'])
                     {
                         $matches = [];
-                        if(preg_match('/^([12345]\.[6789])\s*@\s*(\d+)(\s*,\s*(\d+d|\d+h\d+m?|\d+m)|)$/', trim($message['text']), $matches) == true)
+                        if(preg_match('/^([12345]\.[6789])\s*@\s*(\d+|flip)(\s*,\s*(\d+d|\d+h\d+m?|\d+m)|)$/', trim($message['text']), $matches) == true)
                         {
-                            $command = 'php ' . __DIR__ . '/sheetclient.php !countupdate ';
+                            $command = 'php72 ' . __DIR__ . '/sheetclient.php !countupdate ';
 
                             $slice = mb_strtolower($matches[1]);
                             $count = mb_strtolower($matches[2]);
@@ -33,9 +34,10 @@ foreach ($client->parseEvents() as $event) {
                             {
                                 $timestring = "now";
                             }
-                            $updatetime = CarbonInterval::fromString($timestring);
-                            $resp = shell_exec($command . ' "' . $slice . '" "' . $count . '" "' . $updatetime . '"');
-                            $out = strpos($resp, "got it") !== false ? 'Score recorded, @' . $name : 'something went wrong, go find Serrated';
+                            $updatelag = CarbonInterval::fromString($timestring);
+                            $updatetime = Carbon::now('America/Toronto')->sub($updatelag);
+                            $resp = shell_exec($command . ' "' . $slice . '" "' . $count . '" "' . $updatetime->format('m/d/Y H:i') . '"');
+                            $out = strpos($resp, "got it") !== false ? 'update recorded!': 'something went wrong, go find Serrated';
                             $client->replyMessage([
                                     'replyToken' => $event['replyToken'],
                                     'messages' => [
@@ -46,31 +48,44 @@ foreach ($client->parseEvents() as $event) {
                                     ]
                                 ]);
                         }
+                        else if (trim($message['text']) == '!currentstate')
+                        {
+                            $command = 'php72 ' . __DIR__ . '/sheetclient.php !currentstate ';
+                            $resp = shell_exec($command . ' "' . $slice . '" "' . $count . '" "' . $updatetime . '"');
+                            $client->replyMessage([
+                                    'replyToken' => $event['replyToken'],
+                                    'messages' => [
+                                        [
+                                            'type' => 'text',
+                                            'text' => $resp
+                                        ]
+                                    ]
+                                ]);
+
+                        }
                     }
+                    else if(isset($source['groupId']) && $source['groupId'] == $CONF['DEBUG_ROOM_ID'])
+                    {
+                        $profile = $client->profile($source['userId']);
+                        error_log('got a message from user ID ' . $source['userId'] . ', displayName '.$profile->displayName.' message '.$message['text']);
+
+                        $client->replyMessage([
+                            'replyToken' => $event['replyToken'],
+                            'messages' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => 'from user ID:'. $source['userId'] . '
+                                        echoing: '.$message['text'] .'
+                                        displayName: '. $profile->displayName
+                                    ]
+                                ]
+                            ]);
+                     }
+
                     break;
                 default:
                     break;
             }
-            $source = $event['source'];
-            if(isset($event['source']['groupId']) && $event['source']['groupId'] == $CONF['DEBUG_ROOM_ID'])
-            {
-                $profile = $client->profile($event['source']['userId']);
-                error_log('got a message from user ID ' . $event['source']['userId'] . ', displayName '.$profile->displayName.' message '.$message['text']);
-
-                $client->replyMessage([
-                    'replyToken' => $event['replyToken'],
-                    'messages' => [
-                        [
-                            'type' => 'text',
-                            'text' => 'from user ID:'. $event['source']['userId'] . '
-                                echoing: '.$message['text'] .'
-                                displayName: '. $profile->displayName
-                            ]
-                        ]
-                    ]);
-
-             }
-
             break;
         case 'join':
             $source = $event['source'];
