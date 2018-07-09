@@ -8,6 +8,43 @@ $channelSecret = $CONF['BOT_CHANNEL_SECRET'];
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 
+$helptext=[
+'' => 'available help:
+!help: general usage (this message)
+!help count: how to tell me to update a count
+!help sliceend: how to tell me to alter the sheet for a new event'
+,'count' => "
+    count update formats:
+    <slice><count>[report lag]
+    <slice>@<count>[report lag]
+    
+    whitespace allowed between bracketed components
+
+    <slice>: standard slice designators, e.g. 1.9 or 5.7
+    
+    <count>: any sequence of numbers, or the word 'flip' (not case sensitive)
+    
+    [report lag]:
+        optional comma, followed by one of:
+        
+        ##h
+        ##m
+        ##h##m
+        ##h##
+
+        where ## is a 1- or 2-digit number. 
+
+    examples: 
+
+    1.9 333 2h
+    1.9 @ 444 45m
+    5.7@555, 1h15m
+    3.6 666, 3h20"
+,'sliceend' => "
+    (not yet implemented)
+"
+];
+
 $client = new LINEBotTiny($channelAccessToken, $channelSecret);
 foreach ($client->parseEvents() as $event) {
     switch ($event['type']) {
@@ -19,9 +56,9 @@ foreach ($client->parseEvents() as $event) {
                     if(isset($source['groupId']) && $source['groupId'] == $CONF['LISTEN_ROOM_ID'])
                     {
                         $matches = [];
-                        if(preg_match('/^([12345]\.[6789])\s*@\s*(\d+|flip)(\s*,\s*(\d+d|\d+h\d+m?|\d+m)|)$/', trim($message['text']), $matches) == true)
+                        if(preg_match('/^([12345]\.[6789])\s*[@ ]\s*(\d+|flip)(\s*,?\s*(\d+h|\d+h\s*\d+m?|\d+m)|)$/i', trim($message['text']), $matches) == true)
                         {
-                            $command = 'php72 ' . __DIR__ . '/sheetclient.php !countupdate ';
+                            $command = 'php72 ' . __DIR__ . '/sheetclient.php countupdate ';
 
                             $slice = mb_strtolower($matches[1]);
                             $count = mb_strtolower($matches[2]);
@@ -36,8 +73,11 @@ foreach ($client->parseEvents() as $event) {
                             }
                             $updatelag = CarbonInterval::fromString($timestring);
                             $updatetime = Carbon::now('America/Toronto')->sub($updatelag);
-                            $resp = shell_exec($command . ' "' . $slice . '" "' . $count . '" "' . $updatetime->format('m/d/Y H:i') . '"');
-                            $out = strpos($resp, "got it") !== false ? 'update recorded!': 'something went wrong, go find Serrated';
+                            $args = ' "' . $slice . '" "' . $count . '" "' . $updatetime->format('m/d/Y H:i') . '"';
+
+                            $resp = shell_exec($command . $args);
+
+                            $out = strpos($resp, "got it") !== false ? 'update recorded as '. $args .'': 'something went wrong, go find Serrated';
                             $client->replyMessage([
                                     'replyToken' => $event['replyToken'],
                                     'messages' => [
@@ -48,9 +88,11 @@ foreach ($client->parseEvents() as $event) {
                                     ]
                                 ]);
                         }
-                        else if (trim($message['text']) == '!currentstate')
+                        else
                         {
-                            $command = 'php72 ' . __DIR__ . '/sheetclient.php !currentstate ';
+                        switch (explode(" ", trim($message['text']))[0]) 
+                        case '!currentstate':
+                            $command = 'php72 ' . __DIR__ . '/sheetclient.php currentstate ';
                             $resp = shell_exec($command . ' "' . $slice . '" "' . $count . '" "' . $updatetime . '"');
                             $client->replyMessage([
                                     'replyToken' => $event['replyToken'],
@@ -61,8 +103,23 @@ foreach ($client->parseEvents() as $event) {
                                         ]
                                     ]
                                 ]);
-
-                        }
+                            break;
+                        case '!help':
+                            $helpsubset=explode(" ", trim($message['text']))[1];
+                            if(empty($helpsubset))
+                            {
+                                $helpsubset='';
+                            }
+                            $resp = $helptext[$helpsubset];
+                            $client->replyMessage([
+                                    'replyToken' => $event['replyToken'],
+                                    'messages' => [
+                                        [
+                                            'type' => 'text',
+                                            'text' => $resp
+                                        ]
+                                    ]
+                                ]);
                     }
                     else if(isset($source['groupId']) && $source['groupId'] == $CONF['DEBUG_ROOM_ID'])
                     {
