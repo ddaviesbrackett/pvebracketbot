@@ -131,7 +131,7 @@ if (array_key_exists($argv[1], $commandtoRange)) {
     ['range' => $countcell, 'values' => [[$count]]]
     ,['range' => $updatetimecell, 'values' => [[$updatetime]]]
   ];
-  if($updatetime == 'flip'){
+  if($count == 'flip'){
     $flipcount = $service->spreadsheets_values->get($spreadsheetId, $flipcountcell)[0][0];
     if(empty($flipcount)) {
       $flipcount = 1;
