@@ -76,7 +76,7 @@ $service = new Google_Service_Sheets($client);
 $spreadsheetId = $CONF['SHEET_TO_UPDATE'];
 
 $commandtoRange = [
-  '!currentstate' => 'Updates!B2:F26'
+  'currentstate' => 'Updates!B2:F26'
   //,!countupdate is special-cased, below
 ];
 
@@ -117,17 +117,33 @@ if (array_key_exists($argv[1], $commandtoRange)) {
       printf("%s %s%-3s\t%s %s\n", $row[0], $row[1], $row[2], $row[3], ($row[4] == ''?'':'(predicted:' + $row[4] + ')') );
     }
   }
-} else if ($argv[1] == '!countupdate'){ //!countupdate 2.9 338 "7/19/2018 6:22:00"
+} else if ($argv[1] == 'countupdate') { //!countupdate 2.9 338 "7/19/2018 6:22:00"
+  
   $countcell = 'D' . $slice2row[$argv[2]];
   $updatetimecell = 'H' . $slice2row[$argv[2]];
+  $fliptimecell = 'K' . $slice2row[$argv[2]];
+  $flipcountcell = 'M' . $slice2row[$argv[2]];
+
   $count = $argv[3];
   $updatetime = $argv[4];
 
-  $requestBody = new Google_Service_Sheets_BatchUpdateValuesRequest();
-  $requestBody->setData([
+  $data = [
     ['range' => $countcell, 'values' => [[$count]]]
     ,['range' => $updatetimecell, 'values' => [[$updatetime]]]
-  ]);
+  ];
+  if($updatetime == 'flip'){
+    $flipcount = $service->spreadsheets_values->get($spreadsheetId, $flipcountcell)[0][0];
+    if(empty($flipcount)) {
+      $flipcount = 1;
+    }
+    else {
+      $flipcount += 1;
+    }
+    $data[] = ['range' => $fliptimecell, 'values' => [[$updatetime]]];
+    $data[] = ['range' => $flipcountcell, 'values' => [[$flipcount]]];
+  }
+  $requestBody = new Google_Service_Sheets_BatchUpdateValuesRequest();
+  $requestBody->setData($data);
 
   $requestBody->setValueInputOption('USER_ENTERED');
   $requestBody->setIncludeValuesInResponse(false);
