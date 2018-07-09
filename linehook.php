@@ -90,36 +90,40 @@ foreach ($client->parseEvents() as $event) {
                         }
                         else
                         {
-                        switch (explode(" ", trim($message['text']))[0]) 
-                        case '!currentstate':
-                            $command = 'php72 ' . __DIR__ . '/sheetclient.php currentstate ';
-                            $resp = shell_exec($command . ' "' . $slice . '" "' . $count . '" "' . $updatetime . '"');
-                            $client->replyMessage([
-                                    'replyToken' => $event['replyToken'],
-                                    'messages' => [
-                                        [
-                                            'type' => 'text',
-                                            'text' => $resp
-                                        ]
-                                    ]
-                                ]);
-                            break;
-                        case '!help':
-                            $helpsubset=explode(" ", trim($message['text']))[1];
-                            if(empty($helpsubset))
+                            switch (explode(" ", trim($message['text']))[0]) 
                             {
-                                $helpsubset='';
+                                case '!currentstate':
+                                    $command = 'php72 ' . __DIR__ . '/sheetclient.php currentstate ';
+                                    $resp = shell_exec($command . ' "' . $slice . '" "' . $count . '" "' . $updatetime . '"');
+                                    $client->replyMessage([
+                                            'replyToken' => $event['replyToken'],
+                                            'messages' => [
+                                                [
+                                                    'type' => 'text',
+                                                    'text' => $resp
+                                                ]
+                                            ]
+                                        ]);
+                                    break;
+                                case '!help':
+                                    $helpsubset=explode(" ", trim($message['text']))[1];
+                                    if(empty($helpsubset))
+                                    {
+                                        $helpsubset='';
+                                    }
+                                    $resp = $helptext[$helpsubset];
+                                    $client->replyMessage([
+                                            'replyToken' => $event['replyToken'],
+                                            'messages' => [
+                                                [
+                                                    'type' => 'text',
+                                                    'text' => $resp
+                                                ]
+                                            ]
+                                        ]);
+                                    break;
                             }
-                            $resp = $helptext[$helpsubset];
-                            $client->replyMessage([
-                                    'replyToken' => $event['replyToken'],
-                                    'messages' => [
-                                        [
-                                            'type' => 'text',
-                                            'text' => $resp
-                                        ]
-                                    ]
-                                ]);
+                        }
                     }
                     else if(isset($source['groupId']) && $source['groupId'] == $CONF['DEBUG_ROOM_ID'])
                     {
