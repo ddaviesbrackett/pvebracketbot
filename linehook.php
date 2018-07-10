@@ -56,7 +56,7 @@ foreach ($client->parseEvents() as $event) {
                     if(isset($source['groupId']) && $source['groupId'] == $CONF['LISTEN_ROOM_ID'])
                     {
                         $matches = [];
-                        if(preg_match('/^([12345]\.[6789])\s*[@ ]\s*(\d+|flip)(\s*,?\s*(\d+h|\d+h\s*\d+m?|\d+m)|)$/i', trim($message['text']), $matches) == true)
+                        if(preg_match('/^([12345]\.[6789])\s*[@ ]\s*(\d{1,3}|flip)(\s*,?\s*(\d+h|\d+h\s*\d+m?|\d+m)|)$/i', trim($message['text']), $matches) == true)
                         {
                             $command = 'php72 ' . __DIR__ . '/sheetclient.php countupdate ';
 
@@ -70,6 +70,10 @@ foreach ($client->parseEvents() as $event) {
                             if(empty($timestring))
                             {
                                 $timestring = "now";
+                            }
+                            if($count == "0")
+                            {
+                                $count = "flip";
                             }
                             $updatelag = CarbonInterval::fromString($timestring);
                             $updatetime = Carbon::now('America/Toronto')->sub($updatelag);
