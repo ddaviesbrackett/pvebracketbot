@@ -144,7 +144,7 @@ if (array_key_exists($argv[1], $commandtoRange)) {
     }
     $data[] = ['range' => $fliptimecell, 'values' => [[$updatetime]]];
   }
-  if($count != 'lag-update') {
+  if($count != 'lag-update' && $count != 'flip-update') {
     $data[] = ['range' => $countcell, 'values' => [[$count]]];
   }
   $requestBody = new Google_Service_Sheets_BatchUpdateValuesRequest();
