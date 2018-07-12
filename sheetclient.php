@@ -128,8 +128,7 @@ if (array_key_exists($argv[1], $commandtoRange)) {
   $updatetime = $argv[4];
 
   $data = [
-    ['range' => $countcell, 'values' => [[$count]]]
-    ,['range' => $updatetimecell, 'values' => [[$updatetime]]]
+    ['range' => $updatetimecell, 'values' => [[$updatetime]]]
   ];
   if($count == 'flip'){
     $flipcount = $service->spreadsheets_values->get($spreadsheetId, $flipcountcell)[0][0];
@@ -141,6 +140,9 @@ if (array_key_exists($argv[1], $commandtoRange)) {
     }
     $data[] = ['range' => $fliptimecell, 'values' => [[$updatetime]]];
     $data[] = ['range' => $flipcountcell, 'values' => [[$flipcount]]];
+  }
+  if($count != 'lag-update') {
+    $data[] = ['range' => $countcell, 'values' => [[$count]]]
   }
   $requestBody = new Google_Service_Sheets_BatchUpdateValuesRequest();
   $requestBody->setData($data);
