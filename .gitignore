@@ -18,3 +18,4 @@ temp/
 #secrets
 client_secret.json
 config.php
+scratch.php
