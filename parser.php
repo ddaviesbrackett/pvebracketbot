@@ -258,39 +258,39 @@ class Parser {
     private $peg_c28;
 
     private function peg_f0($arg) {
-    	return ["h"=> ["arg" => $arg]];
+      return ["h"=> ["arg" => $arg]];
     }
     private function peg_f1($slice, $cnt, $lag) {
-     	return ["c" => [
-     		"slice" => $slice
-     		,"count" => $cnt
-     		,"lag" => $lag
-     	]];
+       return ["c" => [
+         "slice" => $slice
+         ,"count" => $cnt
+         ,"lag" => $lag
+       ]];
      }
     private function peg_f2($slice, $lag) {
-     	return ["c" => [
-     		"slice" => $slice
-     		,"count" => NULL
-     		,"lag" => $lag
-     	]];
+       return ["c" => [
+         "slice" => $slice
+         ,"count" => NULL
+         ,"lag" => $lag
+       ]];
      }
     private function peg_f3() {return $this->text();}
     private function peg_f4($dg) {
-     	if ($dg < 1) {
-     		return "flip";
-     	}
-     	return $dg;
+       if ($dg < 1) {
+         return "flip";
+       }
+       return $dg;
      }
     private function peg_f5() {
-     	return $this->text();
+       return $this->text();
      }
     private function peg_f6() {
-     	$raw = (int) filter_var($this->text(), FILTER_SANITIZE_NUMBER_INT);
-     	if ($raw > 0 && $raw < 1000)
-     	{
-     		return $raw;
-     	}
-     	return NULL;
+       $raw = (int) filter_var($this->text(), FILTER_SANITIZE_NUMBER_INT);
+       if ($raw > 0 && $raw < 1000)
+       {
+         return $raw;
+       }
+       return NULL;
      }
     private function peg_f7() {
       return $this->text();
