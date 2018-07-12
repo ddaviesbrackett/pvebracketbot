@@ -1,0 +1,67 @@
+Expression
+ = Help
+ / Count
+ / Nextevent
+
+Help
+= "!help" _ arg:HelpArg? {
+	return ["h"=> ["arg" => $arg]];
+}
+
+HelpArg
+ = "count"
+ / "nextevent"
+
+ _ "whitespace"
+  = [ \t\n\r]*
+  
+Count
+ = slice:Slice _ ("@" _ )? cnt:CountSpec _ lag:ReportLag? {
+ 	return ["c" => [
+ 		"slice" => $slice
+ 		,"count" => $cnt
+ 		,"lag" => $lag
+ 	]];
+ }
+ / slice:Slice _ "last" _ "flip"? _ lag:ReportLag {
+ 	return ["c" => [
+ 		"slice" => $slice
+ 		,"count" => NULL
+ 		,"lag" => $lag
+ 	]];
+ }
+ 
+Slice
+ = [12345] "." [7689] {return $this->text();}
+ 
+CountSpec
+ = dg:Digits {
+ 	if ($dg < 1) {
+ 		return "flip";
+ 	}
+ 	return $dg;
+ } 
+ / "flip" {
+ 	return $this->text();
+ }
+ 
+Digits
+ = [0-9]+ {
+ 	$raw = (int) filter_var($this->text(), FILTER_SANITIZE_NUMBER_INT);
+ 	if ($raw > 0 && $raw < 1000)
+ 	{
+ 		return $raw;
+ 	}
+ 	return NULL;
+ }
+ 
+ReportLag 
+ = (Digits "h" Digits "m"
+ / Digits "h" Digits
+ / Digits "m"
+ / Digits "h" ){
+  return $this->text();
+ }
+
+Nextevent
+= "next event" _ eventnum:Digits {return ["n"=> ["nextevent" => $eventnum]];}
