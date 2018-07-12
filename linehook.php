@@ -12,7 +12,7 @@ $helptext=[
 '' => 'available help:
 !help: general usage (this message)
 !help count: how to tell me to update a count
-!help sliceend: how to tell me to alter the sheet for a new event'
+!help nextevent: how to tell me what the next event is'
 ,'count' => "
     count update formats:
     <slice><count>[report lag]
@@ -40,7 +40,7 @@ $helptext=[
     1.9 @ 444 45m
     5.7@555, 1h15m
     3.6 666, 3h20"
-,'sliceend' => "
+,'nextevent' => "
     (not yet implemented)
 "
 ];
