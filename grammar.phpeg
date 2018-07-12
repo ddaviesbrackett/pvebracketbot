@@ -23,14 +23,20 @@ Count
      ,"lag" => $lag
    ]];
  }
- / slice:Slice _ "last" _ "flip"? _ lag:ReportLag {
+ / slice:Slice _ t:LagOnlyUpdateType _ lag:ReportLag {
    return ["c" => [
      "slice" => $slice
-     ,"count" => NULL
+     ,"count" => $t
      ,"lag" => $lag
    ]];
  }
- 
+
+LagOnlyUpdateType
+ = "last" _ flip:"flip"? {
+ 	return $flip == 'flip'?"flip-update":"lag-update";
+ }
+
+
 Slice
  = [12345] "." [7689] {return $this->text();}
  

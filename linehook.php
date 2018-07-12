@@ -2,6 +2,8 @@
 require_once(__DIR__ . '/vendor/LINEBotTiny.php');
 require_once(__DIR__ . '/config.php');
 require_once(__DIR__ . '/vendor/autoload.php');
+require_once(__DIR__ . '/parser.php');
+
 $channelAccessToken = $CONF['BOT_CHANNEL_ACCESS'];
 $channelSecret = $CONF['BOT_CHANNEL_SECRET'];
 
@@ -22,7 +24,7 @@ $helptext=[
 
     <slice>: standard slice designators, e.g. 1.9 or 5.7
     
-    <count>: any sequence of numbers, or the word 'flip' (not case sensitive)
+    <count>: 0-999, or the word 'flip' (not case sensitive)
     
     [report lag]:
         optional comma, followed by one of:
@@ -55,42 +57,66 @@ foreach ($client->parseEvents() as $event) {
                     $source = $event['source'];
                     if(isset($source['groupId']) && $source['groupId'] == $CONF['LISTEN_ROOM_ID'])
                     {
-                        $matches = [];
-                        if(preg_match('/^([12345]\.[6789])\s*[@ ]\s*(\d{1,3}|flip)(\s*,?\s*(\d+h|\d+h\s*\d+m?|\d+m)|)$/i', trim($message['text']), $matches) == true)
+                        $result = [];
+                        $errormessage = "";
+                        try 
                         {
-                            $command = 'php72 ' . __DIR__ . '/sheetclient.php countupdate ';
-
-                            $slice = mb_strtolower($matches[1]);
-                            $count = mb_strtolower($matches[2]);
-                            $timestring = $matches[4];
-                            if(preg_match('/^\d+h\d+$/', $timestring))
+                            $parser = new PhpPegJs\Parser;
+                            $result = $parser->parse(trim($message['text']));
+                        }
+                        catch (PhpPegJs\SyntaxError $ex) 
+                        {
+                            $errormessage = "Syntax error: " . $ex->getMessage();
+                        }
+                        if(count($result) == 1 && empty($errormessage))
+                        {
+                            if(isset($result["h"]))
                             {
-                                $timestring .= 'm';
-                            }
-                            if(empty($timestring))
-                            {
-                                $timestring = "now";
-                            }
-                            if($count == "0")
-                            {
-                                $count = "flip";
-                            }
-                            $updatelag = CarbonInterval::fromString($timestring);
-                            $updatetime = Carbon::now('America/Toronto')->sub($updatelag);
-                            $args = ' "' . $slice . '" "' . $count . '" "' . $updatetime->format('m/d/Y H:i') . '"';
-
-                            $resp = shell_exec($command . $args);
-
-                            $out = strpos($resp, "got it") !== false ? 'update recorded as '. $args .'': 'something went wrong, go find Serrated';
-                            $client->replyMessage([
+                                $client->replyMessage([
                                     'replyToken' => $event['replyToken'],
                                     'messages' => [
                                         [
                                             'type' => 'text',
-                                            'text' => $out
+                                            'text' => $helptext[$result["h"]["arg"]]
                                         ]
                                     ]
                                 ]);
+                            }
+                            else if (isset($result["c"]))
+                            {
+                                $command = 'php72 ' . __DIR__ . '/sheetclient.php countupdate ';
+                                $update = $result["c"];
+
+                                $slice = mb_strtolower($update["slice"]);
+                                $count = mb_strtolower($update["count"]);
+                                $timestring = $update["lag"];
+
+                                if(preg_match('/^\d+h\d+$/', $timestring))
+                                {
+                                    $timestring .= 'm';
+                                }
+                                if(empty($timestring))
+                                {
+                                    $timestring = "now";
+                                }
+                                
+                                $updatelag = CarbonInterval::fromString($timestring);
+                                $updatetime = Carbon::now('America/Toronto')->sub($updatelag);
+                                $args = ' "' . $slice . '" "' . $count . '" "' . $updatetime->format('m/d/Y H:i') . '"';
+
+                                $resp = shell_exec($command . $args);
+
+                                $out = strpos($resp, "got it") !== false ? 'update recorded as '. $args .'': 'something went wrong, go find Serrated';
+                                $client->replyMessage([
+                                        'replyToken' => $event['replyToken'],
+                                        'messages' => [
+                                            [
+                                                'type' => 'text',
+                                                'text' => $out
+                                            ]
+                                        ]
+                                    ]);
+                            }
                         }
                         else
                         {
@@ -99,23 +125,6 @@ foreach ($client->parseEvents() as $event) {
                                 case '!currentstate':
                                     $command = 'php72 ' . __DIR__ . '/sheetclient.php currentstate ';
                                     $resp = shell_exec($command . ' "' . $slice . '" "' . $count . '" "' . $updatetime . '"');
-                                    $client->replyMessage([
-                                            'replyToken' => $event['replyToken'],
-                                            'messages' => [
-                                                [
-                                                    'type' => 'text',
-                                                    'text' => $resp
-                                                ]
-                                            ]
-                                        ]);
-                                    break;
-                                case '!help':
-                                    $helpsubset=explode(" ", trim($message['text']))[1];
-                                    if(empty($helpsubset))
-                                    {
-                                        $helpsubset='';
-                                    }
-                                    $resp = $helptext[$helpsubset];
                                     $client->replyMessage([
                                             'replyToken' => $event['replyToken'],
                                             'messages' => [
