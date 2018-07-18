@@ -1,0 +1,26 @@
+as events end, what needs to happen to the sheet?
+
+when slice 1 ends, an updater must:
+1) update C3 to the format "old event / new event" 
+2) unhide column A
+
+when any slice ends, an updater must:
+1) Clear the count (D), update time(H), time of last flip(K), # of flips(M) for each CL
+2) update the counts (D) with the most recent prejoin counts (Q) if it exists, with the appropriate update time (H)
+3) set the event moniker (A) appropriately
+4) unhide the Formulas worksheet to update "Event Ends" in column S with the new end date for the slice
+ S4, S5, S6, S7, S8 updates Slice 1, Slice 2, Slice 3, Slice 4, Slice 5 respectively
+ this updates the Updates worksheet with the new Event End Countdown for the slice
+5) hide the Formulas worksheet
+
+when slice 5 ends, an updater must:
+1) update C3 to the format "new event"
+2) hide column A
+3) unhide the Formulas worksheet to update the active event(s) in W
+	for 1 active event, update W16 based on the events table to the right (columns AA, AB)
+	for 2 active events, update W18 for the second event
+	this updates the Events worksheet by highlighting the row in yellow for the active event(s)
+4) hide the Formulas worksheet
+
+
+most of this can be taken care of automagically, once the next event is set by hand (or by bot command).
