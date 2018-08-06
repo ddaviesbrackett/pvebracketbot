@@ -3,7 +3,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/config.php';
 
 define('SHEETS_APPLICATION_NAME', 'PVE sheet bot backend client');
-define('SHEETS_CLIENT_SECRET_PATH', __DIR__ . '/client_secret.json');
+define('SHEETS_CLIENT_SECRET_PATH', __DIR__ . '\client_secret.json');
 // If modifying these scopes, delete your previously saved credentials
 // at SHEETS_CREDENTIALS_PATH (defined in config.php)
 define('SHEETS_SCOPES', implode(' ', array(
@@ -119,20 +119,25 @@ if (array_key_exists($argv[1], $commandtoRange)) {
   }
 } else if ($argv[1] == 'countupdate') { //!countupdate 2.9 338 "7/19/2018 6:22:00"
   
-  $countcell = 'D' . $slice2row[$argv[2]];
-  $updatetimecell = 'H' . $slice2row[$argv[2]];
-  $fliptimecell = 'K' . $slice2row[$argv[2]];
-  $flipcountcell = 'M' . $slice2row[$argv[2]];
+  $slice = $argv[2];
+  $row = $slice2row[$slice];
+
+  $countcell = 'D' . $row;
+  $updatetimecell = 'H' . $row;
+  $fliptimecell = 'K' . $row;
+  $flipcountcell = 'M' . $row;
 
   $count = $argv[3];
   $updatetime = $argv[4];
+
+  $previous = $service->spreadsheets_values->batchGet($spreadsheetId, [$countcell, $updatetimecell]);
+
 
   $data = [
     ['range' => $updatetimecell, 'values' => [[$updatetime]]]
   ];
   if($count == 'flip' || $count == 'flip-update'){
-    if($count == 'flip')
-    {
+    if($count == 'flip') {
       $flipcount = $service->spreadsheets_values->get($spreadsheetId, $flipcountcell)[0][0];
       if(empty($flipcount)) {
         $flipcount = 1;
@@ -154,6 +159,8 @@ if (array_key_exists($argv[1], $commandtoRange)) {
   $requestBody->setIncludeValuesInResponse(false);
 
   $response = $service->spreadsheets_values->batchUpdate($spreadsheetId, $requestBody);
-  print "got it";
+  print "got it: ". $slice . "updated from" . $previous[0] . ' ' . $previous[1] . "\nto " . $count . ' ' . $updatetime;
 
+} else {
+  print "invalid parameters";
 }
