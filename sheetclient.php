@@ -160,9 +160,8 @@ if (array_key_exists($argv[1], $commandtoRange)) {
 
   $new = $service->spreadsheets_values->batchUpdate($spreadsheetId, $requestBody);
 
-  $newtime = $new[0][0][0]; //time is the first
-  $newcount = $new[count($data) - 1][0][0]; //count is the last
-
+  $newtime = $new[0]["updatedData"][0][0]; //time is the first
+  $newcount = $new[count($data) - 1]["updatedData"][0][0]; //count is the last
 
   print "got it: ". $slice . " updated\nfrom " . $previous[0][0][0] . ' ' . $previous[1][0][0] . "\nto " . $newcount . ' ' . $newtime;
 
