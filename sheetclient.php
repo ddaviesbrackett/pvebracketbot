@@ -130,7 +130,7 @@ if (array_key_exists($argv[1], $commandtoRange)) {
   $count = $argv[3];
   $updatetime = $argv[4];
 
-  $previous = $service->spreadsheets_values->batchGet($spreadsheetId, [$countcell, $updatetimecell]);
+  $previous = $service->spreadsheets_values->batchGet($spreadsheetId, ["ranges"=>[$countcell, $updatetimecell]]);
 
 
   $data = [
@@ -159,7 +159,7 @@ if (array_key_exists($argv[1], $commandtoRange)) {
   $requestBody->setIncludeValuesInResponse(false);
 
   $response = $service->spreadsheets_values->batchUpdate($spreadsheetId, $requestBody);
-  print "got it: ". $slice . "updated from" . $previous[0] . ' ' . $previous[1] . "\nto " . $count . ' ' . $updatetime;
+  print "got it: ". $slice . "updated from" . $previous[0][0][0] . ' ' . $previous[1][0][0] . "\nto " . $count . ' ' . $updatetime;
 
 } else {
   print "invalid parameters";
