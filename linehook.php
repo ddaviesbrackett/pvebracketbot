@@ -106,7 +106,7 @@ foreach ($client->parseEvents() as $event) {
 
                                 $resp = shell_exec($command . $args);
 
-                                $out = strpos($resp, "got it") !== false ? mb_substr($out, 7): 'something went wrong, go find Serrated';
+                                $out = strpos($resp, "got it") !== false ? mb_substr($resp, 7): 'something went wrong, go find Serrated';
                                 $client->replyMessage([
                                         'replyToken' => $event['replyToken'],
                                         'messages' => [
