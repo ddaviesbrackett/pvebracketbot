@@ -3,7 +3,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/config.php';
 
 define('SHEETS_APPLICATION_NAME', 'PVE sheet bot backend client');
-define('SHEETS_CLIENT_SECRET_PATH', __DIR__ . '\client_secret.json');
+define('SHEETS_CLIENT_SECRET_PATH', __DIR__ . '/client_secret.json');
 // If modifying these scopes, delete your previously saved credentials
 // at SHEETS_CREDENTIALS_PATH (defined in config.php)
 define('SHEETS_SCOPES', implode(' ', array(
