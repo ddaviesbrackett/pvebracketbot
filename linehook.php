@@ -123,17 +123,6 @@ foreach ($client->parseEvents() as $event) {
                             switch (explode(" ", trim($message['text']))[0]) 
                             {
                                 case '!currentstate':
-                                    $command = 'php72 ' . __DIR__ . '/sheetclient.php currentstate ';
-                                    $resp = shell_exec($command . ' "' . $slice . '" "' . $count . '" "' . $updatetime . '"');
-                                    $client->replyMessage([
-                                            'replyToken' => $event['replyToken'],
-                                            'messages' => [
-                                                [
-                                                    'type' => 'text',
-                                                    'text' => $resp
-                                                ]
-                                            ]
-                                        ]);
                                     break;
                             }
                         }

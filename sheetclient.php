@@ -75,11 +75,6 @@ $service = new Google_Service_Sheets($client);
 
 $spreadsheetId = $CONF['SHEET_TO_UPDATE'];
 
-$commandtoRange = [
-  'currentstate' => 'Updates!B2:F26'
-  //,!countupdate is special-cased, below
-];
-
 //hardcode locations in the sheet - this could be looked up based on the rowindex of column B, but it's faster to hardcode. (saves a network round trip)
 $slice2row = [ 
   '1.9' => '4'
@@ -105,19 +100,7 @@ $slice2row = [
 ];
 
 
-if (array_key_exists($argv[1], $commandtoRange)) {
-  $range = $commandtoRange[$argv[1]];
-  $response = $service->spreadsheets_values->get($spreadsheetId, $range);
-  $values = $response->getValues();
-
-  if (count($values) == 0) {
-    print "No data found.\n";
-  } else {
-    foreach ($values as $row) {
-      printf("%s %s%-3s\t%s %s\n", $row[0], $row[1], $row[2], $row[3], ($row[4] == ''?'':'(predicted:' + $row[4] + ')') );
-    }
-  }
-} else if ($argv[1] == 'countupdate') { //!countupdate 2.9 338 "7/19/2018 6:22:00"
+if ($argv[1] == 'countupdate') { //!countupdate 2.9 338 "7/19/2018 6:22:00"
   
   $slice = $argv[2];
   $row = $slice2row[$slice];
