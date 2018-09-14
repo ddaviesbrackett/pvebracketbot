@@ -167,6 +167,25 @@ else if ($argv[1] == 'pvpupdate') {
 
   $previous = $service->spreadsheets_values->batchGet($spreadsheetId, ["ranges"=>[$countcell, $updatetimecell]]);
 
+  $data = [
+    ['range' => $updatetimecell, 'values' => [[$updatetime]]]
+  ];
+  if($count == 'flip' || $count == 'flip-update'){
+    if($count == 'flip') {
+      $flipcount = $service->spreadsheets_values->get($spreadsheetId, $flipcountcell)[0][0];
+      if(empty($flipcount)) {
+        $flipcount = 1;
+      }
+      else {
+        $flipcount += 1;
+      }
+      $data[] = ['range' => $flipcountcell, 'values' => [[$flipcount]]];
+    }
+    $data[] = ['range' => $fliptimecell, 'values' => [[$updatetime]]];
+  }
+  if($count != 'lag-update' && $count != 'flip-update') {
+    $data[] = ['range' => $countcell, 'values' => [[$count]]];
+  }
   $requestBody = new Google_Service_Sheets_BatchUpdateValuesRequest();
   $requestBody->setData($data);
 
