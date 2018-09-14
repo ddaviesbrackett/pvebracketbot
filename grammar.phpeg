@@ -69,7 +69,7 @@ PVPCountSpec
 Digits
  = [0-9]+ {
    $raw = (int) filter_var($this->text(), FILTER_SANITIZE_NUMBER_INT);
-   if ($raw > 0 && $raw < 10000)
+   if ($raw > 0 && $raw < 5000)
    {
      return $raw;
    }
