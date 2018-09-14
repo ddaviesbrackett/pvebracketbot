@@ -1,7 +1,11 @@
+//generate a parser with:
+// >pegjs --plugin phpegjs --output parser.php grammar.phpeg
+
 Expression
  = Help
  / Count
  / Nextevent
+ / PVPSeason
 
 Help
 = "!help" _ arg:HelpArg? {
@@ -16,7 +20,7 @@ HelpArg
   = [ \t\n\r]*
   
 Count
- = slice:Slice _ ("@" _ )? cnt:CountSpec _ lag:ReportLag? {
+ = slice:Slice _ ("@" _ )? cnt:PVECountSpec _ lag:ReportLag? {
    return ["c" => [
      "slice" => $slice
      ,"count" => $cnt
@@ -40,9 +44,9 @@ LagOnlyUpdateType
 Slice
  = [12345] "." [7689] {return $this->text();}
  
-CountSpec
+PVECountSpec
  = dg:Digits {
-   if ($dg < 1) {
+   if ($dg < 1 || $dg > 999) {
      return "flip";
    }
    return $dg;
@@ -51,10 +55,21 @@ CountSpec
    return $this->text();
  }
  
+PVPCountSpec
+ = dg:Digits {
+   if ($dg < 1 || $dg > 9999) {
+     return "flip";
+   }
+   return $dg;
+ } 
+ / "flip" {
+   return $this->text();
+ }
+
 Digits
  = [0-9]+ {
    $raw = (int) filter_var($this->text(), FILTER_SANITIZE_NUMBER_INT);
-   if ($raw > 0 && $raw < 1000)
+   if ($raw > 0 && $raw < 10000)
    {
      return $raw;
    }
@@ -71,3 +86,19 @@ ReportLag
 
 Nextevent
 = "next event" _ eventnum:Digits {return ["n"=> ["nextevent" => $eventnum]];}
+
+PVPSeason
+ = "pvp" _ slice:Slice _ ("@" _ )? cnt:PVECountSpec _ lag:ReportLag? {
+   return ["pvp" => [
+     "slice" => $slice
+     ,"count" => $cnt
+     ,"lag" => $lag
+   ]];
+ }
+ / "pvp" _ slice:"cl" [6789] _ t:LagOnlyUpdateType _ lag:ReportLag {
+   return ["pvp" => [
+     "slice" => $slice
+     ,"count" => $t
+     ,"lag" => $lag
+   ]];
+ }

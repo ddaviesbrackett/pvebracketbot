@@ -117,6 +117,41 @@ foreach ($client->parseEvents() as $event) {
                                         ]
                                     ]);
                             }
+                            else if (isset($result["pvp"]))
+                            {
+                                $command = 'php72 ' . __DIR__ . '/sheetclient.php pvpupdate ';
+                                $update = $result["pvp"];
+
+                                $slice = mb_strtolower($update["slice"]);
+                                $count = mb_strtolower($update["count"]);
+                                $timestring = $update["lag"];
+
+                                if(preg_match('/^\d+h\d+$/', $timestring))
+                                {
+                                    $timestring .= 'm';
+                                }
+                                if(empty($timestring))
+                                {
+                                    $timestring = "now";
+                                }
+                                
+                                $updatelag = CarbonInterval::fromString($timestring);
+                                $updatetime = Carbon::now('America/Toronto')->sub($updatelag);
+                                $args = ' "' . $slice . '" "' . $count . '" "' . $updatetime->format('m/d/Y H:i') . '"';
+
+                                $resp = shell_exec($command . $args);
+
+                                $out = strpos($resp, "got it") !== false ? mb_substr($resp, 7): 'something went wrong, go find Serrated';
+                                $client->replyMessage([
+                                        'replyToken' => $event['replyToken'],
+                                        'messages' => [
+                                            [
+                                                'type' => 'text',
+                                                'text' => $out
+                                            ]
+                                        ]
+                                    ]);
+                            }
                         }
                         else
                         {
