@@ -88,16 +88,16 @@ Nextevent
 = "next event" _ eventnum:Digits {return ["n"=> ["nextevent" => $eventnum]];}
 
 PVPSeason
- = "pvp" _ slice:"cl" [6789] _ ("@" _ )? cnt:PVECountSpec _ lag:ReportLag? {
+ = "pvp" _ "cl" slice:[6789] _ ("@" _ )? cnt:PVECountSpec _ lag:ReportLag? {
    return ["pvp" => [
-     "slice" => $slice
+     "slice" => "cl" . $slice
      ,"count" => $cnt
      ,"lag" => $lag
    ]];
  }
- / "pvp" _ slice:"cl" [6789] _ t:LagOnlyUpdateType _ lag:ReportLag {
+ / "pvp" _ "cl" slice:[6789] _ t:LagOnlyUpdateType _ lag:ReportLag {
    return ["pvp" => [
-     "slice" => $slice
+     "slice" => "cl" . $slice
      ,"count" => $t
      ,"lag" => $lag
    ]];

@@ -313,14 +313,14 @@ class Parser {
     private function peg_f10($eventnum) {return ["n"=> ["nextevent" => $eventnum]];}
     private function peg_f11($slice, $cnt, $lag) {
        return ["pvp" => [
-         "slice" => $slice
+         "slice" => "cl" . $slice
          ,"count" => $cnt
          ,"lag" => $lag
        ]];
      }
     private function peg_f12($slice, $t, $lag) {
        return ["pvp" => [
-         "slice" => $slice
+         "slice" => "cl" . $slice
          ,"count" => $t
          ,"lag" => $lag
        ]];
@@ -996,7 +996,7 @@ class Parser {
                       }
                       if ($s9 !== $this->peg_FAILED) {
                         $this->peg_reportedPos = $s0;
-                        $s1 = $this->peg_f11($s3, $s7, $s9);
+                        $s1 = $this->peg_f11($s4, $s7, $s9);
                         $s0 = $s1;
                       } else {
                         $this->peg_currPos = $s0;
@@ -1077,7 +1077,7 @@ class Parser {
                       $s8 = $this->peg_parseReportLag();
                       if ($s8 !== $this->peg_FAILED) {
                         $this->peg_reportedPos = $s0;
-                        $s1 = $this->peg_f12($s3, $s6, $s8);
+                        $s1 = $this->peg_f12($s4, $s6, $s8);
                         $s0 = $s1;
                       } else {
                         $this->peg_currPos = $s0;
