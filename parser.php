@@ -986,7 +986,7 @@ class Parser {
                   $s6 = null;
                 }
                 if ($s6 !== $this->peg_FAILED) {
-                  $s7 = $this->peg_parsePVECountSpec();
+                  $s7 = $this->peg_parsePVPCountSpec();
                   if ($s7 !== $this->peg_FAILED) {
                     $s8 = $this->peg_parse_();
                     if ($s8 !== $this->peg_FAILED) {
