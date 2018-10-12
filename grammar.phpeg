@@ -91,14 +91,14 @@ Nextevent
   = "pvp"i _ slicepart:("cl"i [6789]) {return $slicepart;}
 
 PVPSeason
- = PVPSlice _ ("@" _ )? cnt:PVPCountSpec _ lag:ReportLag? {
+ = slice:PVPSlice _ ("@" _ )? cnt:PVPCountSpec _ lag:ReportLag? {
    return ["pvp" => [
      "slice" => $slice
      ,"count" => $cnt
      ,"lag" => $lag
    ]];
  }
- /  PVPSlice _ t:LagOnlyUpdateType _ lag:ReportLag {
+ /  slice:PVPSlice _ t:LagOnlyUpdateType _ lag:ReportLag {
    return ["pvp" => [
      "slice" => $slice
      ,"count" => $t
