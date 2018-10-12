@@ -8,13 +8,13 @@ Expression
  / PVPSeason
 
 Help
-= "!help" _ arg:HelpArg? {
+= "!help"i _ arg:HelpArg? {
   return ["h"=> ["arg" => $arg]];
 }
 
 HelpArg
- = "count"
- / "nextevent"
+ = "count"i
+ / "nextevent"i
 
  _ "whitespace"
   = [ \t\n\r]*
@@ -36,7 +36,7 @@ Count
  }
 
 LagOnlyUpdateType
- = "last" _ flip:"flip"? {
+ = "last"i _ flip:"flip"i? {
  	return $flip == 'flip'?"flip-update":"lag-update";
  }
 
@@ -85,20 +85,24 @@ ReportLag
  }
 
 Nextevent
-= "next event" _ eventnum:Digits {return ["n"=> ["nextevent" => $eventnum]];}
+= "next event"i _ eventnum:Digits {return ["n"=> ["nextevent" => $eventnum]];}
+
+ PVPSlice
+  = "pvp"i _ slicepart:("cl"i [6789]) {return $slicepart;}
 
 PVPSeason
- = "pvp" _ slice:("cl" [6789]) _ ("@" _ )? cnt:PVPCountSpec _ lag:ReportLag? {
+ = PVPSlice _ ("@" _ )? cnt:PVPCountSpec _ lag:ReportLag? {
    return ["pvp" => [
      "slice" => $slice
      ,"count" => $cnt
      ,"lag" => $lag
    ]];
  }
- / "pvp" _ slice:("cl" [6789]) _ t:LagOnlyUpdateType _ lag:ReportLag {
+ /  PVPSlice _ t:LagOnlyUpdateType _ lag:ReportLag {
    return ["pvp" => [
      "slice" => $slice
      ,"count" => $t
      ,"lag" => $lag
    ]];
  }
+
