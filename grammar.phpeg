@@ -88,7 +88,7 @@ Nextevent
 = "next event"i _ eventnum:Digits {return ["n"=> ["nextevent" => $eventnum]];}
 
  PVPSlice
-  = "pvp"i _ slicepart:("cl"i [6789]) {return $slicepart;}
+  = "pvp"i _ slicepart:("cl"i [6789]) {return $slicepart[0] . $slicepart[1];}
 
 PVPSeason
  = slice:PVPSlice _ ("@" _ )? cnt:PVPCountSpec _ lag:ReportLag? {

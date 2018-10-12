@@ -311,7 +311,7 @@ class Parser {
       return $this->text();
      }
     private function peg_f10($eventnum) {return ["n"=> ["nextevent" => $eventnum]];}
-    private function peg_f11($slicepart) {return $slicepart;}
+    private function peg_f11($slicepart) {return $slicepart[0] . $slicepart[1];}
     private function peg_f12($slice, $cnt, $lag) {
        return ["pvp" => [
          "slice" => $slice
