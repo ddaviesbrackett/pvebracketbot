@@ -3,6 +3,7 @@ require_once(__DIR__ . '/vendor/LINEBotTiny.php');
 require_once(__DIR__ . '/config.php');
 require_once(__DIR__ . '/vendor/autoload.php');
 require_once(__DIR__ . '/parser.php');
+require_once(__DIR__ . '/aimbot.php');
 
 $channelAccessToken = $CONF['BOT_CHANNEL_ACCESS'];
 $channelSecret = $CONF['BOT_CHANNEL_SECRET'];
@@ -19,12 +20,15 @@ $helptext=[
     count update formats:
     <slice><count>[report lag]
     <slice>@<count>[report lag]
+    <slice> last [report lag]
     
     whitespace allowed between bracketed components
 
     <slice>: standard slice designators, e.g. 1.9 or 5.7
     
     <count>: 0-999, or the word 'flip' (not case sensitive)
+
+    the literal \"last\" means change the time, but not the count
     
     [report lag]:
         optional comma, followed by one of:
@@ -40,6 +44,7 @@ $helptext=[
 
     1.9 333 2h
     1.9 @ 444 45m
+    1.9 last 46m
     5.7@555, 1h15m
     3.6 666, 3h20"
 ,'nextevent' => "
@@ -99,6 +104,8 @@ foreach ($client->parseEvents() as $event) {
                                 {
                                     $timestring = "now";
                                 }
+
+                                trigger_aimbots($client, $update);
                                 
                                 $updatelag = CarbonInterval::fromString($timestring);
                                 $updatetime = Carbon::now('America/Toronto')->sub($updatelag);
