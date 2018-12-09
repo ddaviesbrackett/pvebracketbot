@@ -166,6 +166,119 @@ else if ($argv[1] == 'nextevent')
   $new = $service->spreadsheets_values->batchUpdate($spreadsheetId, $requestBody);
   print "got it: next event set to " . $new[0]["updatedData"][0][0];
 }
+else if ($argv[1] == 'sliceend')
+{
+  $sheetData = $service->spreadsheets_values->batchGet($spreadsheetId, [
+    'ranges'=>['Formulas!U4:U8', 'Formulas!W16:W19', 'Updates!P4:Q26', 'Formulas!W4:Y8', 'Formulas!X19', 'Formulas!S4'],
+    'majorDimension' => 'COLUMNS',
+    'dateTimeRenderOption' => 'SERIAL_NUMBER',
+    'valueRenderOption' => 'UNFORMATTED_VALUE'
+    ]);
+  $slicesToProcess = [];
+  $endedSlices = $sheetData['valueRanges'][0]["values"][0];
+  $currentEvent = $sheetData['valueRanges'][1]["values"][0][1];
+  $nextEventNumber = $sheetData['valueRanges'][1]["values"][0][2];
+  $nextEvent = $sheetData['valueRanges'][1]["values"][0][3];
+  $prejoinInfo = $sheetData['valueRanges'][2]["values"];
+  $eventEndTimes = $sheetData['valueRanges'][3]["values"];
+  $nextEventLength = $sheetData['valueRanges'][4]["values"][0][0];
+  $thisEventEndTime = $sheetData['valueRanges'][5]["values"][0][0];
+  
+  for( $i = 0; $i < 5; $i++)
+  {
+    $endedSlice = $endedSlices[$i];
+    if($endedSlice === 'over')
+    {
+      $slicesToProcess[] = $i + 1;
+    }
+  }
+
+  if(count($slicesToProcess) === 0)
+  {
+    return; //nothing to do
+  }
+
+
+  if($currentEvent === $nextEvent)
+  {
+    //TODO report error in bracket editor room
+    return;
+  }
+
+  $nextEventAbbrev = preg_replace('/[^A-Z]/', '', $nextEvent);
+
+  $operations = [];
+  $updates = [];
+
+  if(in_array(1, $slicesToProcess))
+  {
+    # when the first slice ends, a new event starts - unhide Updates!A, add new event to Updates!C3
+    $operations["updateDimensionProperties"] = changeColumnVisibility(true);
+    $updates[] = ['range' => 'Updates!C3', 'values' => [[$nextEvent . ' / ' . $currentEvent]]];
+  }
+
+  foreach($slicesToProcess as $slice)
+  {
+    $row = $slice + 3;
+    $endTime = $eventEndTimes[$nextEventLength === 3?0 : $nextEventLength == 4?1 : 2][$slice];
+    $updates[] = ['range' => 'Updates!A' . $row, 'values' => [[$nextEventAbbrev]]];
+    $updates[] = ['range' => 'Formulas!S' . $row, 'values' => [[$endTime]]];
+    for($i = 0; $i < 4; $i++)
+    {
+      $updates[] = ['range' => 'Updates!K' . $row, 'values' => [['']]];
+      $updates[] = ['range' => 'Updates!M' . $row, 'values' => [['']]];
+      $updates[] = ['range' => 'Updates!P' . $row, 'values' => [['']]];
+      $updates[] = ['range' => 'Updates!Q' . $row, 'values' => [['']]];
+      $updates[] = ['range' => 'Updates!D' . $row, 'values' => [[$prejoinInfo[0][$row - 3]]]];
+      $updates[] = ['range' => 'Updates!H' . $row, 'values' => [[$prejoinInfo[1][$row - 3]]]];
+      $row += 6;
+    }
+  }
+
+  if(in_array(5, $slicesToProcess))
+  {
+    $operations["updateDimensionProperties"] = changeColumnVisibility(false);
+    $updates[] = ['range' => 'Formulas!W4' . $row, 'values' => [[$thisEventEndTime + 3]]]; //3 days on
+    $updates[] = ['range' => 'Formulas!W16' . $row, 'values' => [[$nextEventNumber]]]; //make next event current event
+  }
+
+  $requestBody = new Google_Service_Sheets_BatchUpdateValuesRequest();
+  $requestBody->setData($updates);
+  $requestBody->setValueInputOption('USER_ENTERED');
+  $requestBody->setIncludeValuesInResponse(false);
+  $service->spreadsheets_values->batchUpdate($spreadsheetId, $requestBody);
+
+  if(count($operations) > 0)
+  {
+    $requestBody = new Google_Service_Sheets_BatchUpdateSpreadsheetRequest();
+    $requestBody->setRequests($operations);
+    $requestBody->setIncludeSpreadsheetInResponse(false);
+    $requestBody->setResponseIncludeGridData(false);
+    $service->spreadsheets->batchUpdate($spreadsheetId, $requestBody);
+  }
+
+  print "got it: slice changeover happened for slice(s) " . join(',', $slicesToProcess);
+}
 else {
   print "invalid parameters";
+}
+
+function changeColumnVisibility($show)
+{
+  $req = new Google_Service_Sheets_UpdateDimensionPropertiesRequest();
+  
+  $range = new Google_Service_Sheets_DimensionRange();
+  $range->setDimension('COLUMNS');
+  $range->setStartIndex(0);
+  $range->setEndIndex(1);
+  $range->setSheetId(0);
+  $req->setRange($range);
+  $req->setFields("*");
+
+  $props = new Google_Service_Sheets_DimensionProperties();
+  $props->setHiddenByUser(!$show);
+  $props->setPixelSize($show?60:0);
+  $req->setProperties($props);
+
+  return $req;
 }

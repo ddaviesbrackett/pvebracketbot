@@ -104,13 +104,15 @@ foreach ($client->parseEvents() as $event) {
 
                                 respond($client, $event['replyToken'], $resp);
                             }
-                        }
-                        else if (isset($result['n']))
-                        {
-                            $next = $result['n'];
-                            $command = 'php72' . __DIR__ . '/sheetclient.php nextevent ';
-                            $resp = shell_exec($command . $next['nextevent']);
-                            respond($client, $event['replyToken'], $resp);
+                            else if (isset($result['n']))
+                            {
+                                $next = $result['n'];
+                                $update = 'php72 ' . __DIR__ . '/sheetclient.php nextevent ';
+                                $process = 'php72 ' . __DIR__ . '/sheetclient.php sliceend ';
+                                $resp = shell_exec($update . $next['nextevent']);
+                                $resp = shell_exec($process);
+                                respond($client, $event['replyToken'], $resp);
+                            }
                         }
                     }
                     else if(isset($source['groupId']) && $source['groupId'] == $CONF['DEBUG_ROOM_ID'])
