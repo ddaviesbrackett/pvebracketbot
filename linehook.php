@@ -91,82 +91,26 @@ foreach ($client->parseEvents() as $event) {
                             {
                                 $command = 'php72 ' . __DIR__ . '/sheetclient.php countupdate ';
                                 $update = $result["c"];
-
-                                $slice = mb_strtolower($update["slice"]);
-                                $count = mb_strtolower($update["count"]);
-                                $timestring = $update["lag"];
-
-                                if(preg_match('/^\d+h\d+$/', $timestring))
-                                {
-                                    $timestring .= 'm';
-                                }
-                                if(empty($timestring))
-                                {
-                                    $timestring = "now";
-                                }
-
                                 trigger_aimbots($client, $update);
-                                
-                                $updatelag = CarbonInterval::fromString($timestring);
-                                $updatetime = Carbon::now('America/Toronto')->sub($updatelag);
-                                $args = ' "' . $slice . '" "' . $count . '" "' . $updatetime->format('m/d/Y H:i') . '"';
-
+                                $args = formatUpdateArgs($update);
                                 $resp = shell_exec($command . $args);
-
-                                $out = strpos($resp, "got it") !== false ? mb_substr($resp, 7): 'something went wrong, go find Serrated';
-                                $client->replyMessage([
-                                        'replyToken' => $event['replyToken'],
-                                        'messages' => [
-                                            [
-                                                'type' => 'text',
-                                                'text' => $out
-                                            ]
-                                        ]
-                                    ]);
+                                respond($client, $event['replyToken'], $resp);
                             }
                             else if (isset($result["pvp"]))
                             {
                                 $command = 'php72 ' . __DIR__ . '/sheetclient.php pvpupdate ';
-                                $update = $result["pvp"];
-
-                                $slice = mb_strtolower($update["slice"]);
-                                $count = mb_strtolower($update["count"]);
-                                $timestring = $update["lag"];
-
-                                if(preg_match('/^\d+h\d+$/', $timestring))
-                                {
-                                    $timestring .= 'm';
-                                }
-                                if(empty($timestring))
-                                {
-                                    $timestring = "now";
-                                }
-                                
-                                $updatelag = CarbonInterval::fromString($timestring);
-                                $updatetime = Carbon::now('America/Toronto')->sub($updatelag);
-                                $args = ' "' . $slice . '" "' . $count . '" "' . $updatetime->format('m/d/Y H:i') . '"';
-
+                                $args = formatUpdateArgs($result['pvp']);
                                 $resp = shell_exec($command . $args);
 
-                                $out = strpos($resp, "got it") !== false ? mb_substr($resp, 7): 'something went wrong, go find Serrated';
-                                $client->replyMessage([
-                                        'replyToken' => $event['replyToken'],
-                                        'messages' => [
-                                            [
-                                                'type' => 'text',
-                                                'text' => $out
-                                            ]
-                                        ]
-                                    ]);
+                                respond($client, $event['replyToken'], $resp);
                             }
                         }
-                        else
+                        else if (isset($result['n']))
                         {
-                            switch (explode(" ", trim($message['text']))[0]) 
-                            {
-                                case '!currentstate':
-                                    break;
-                            }
+                            $next = $result['n'];
+                            $command = 'php72' . __DIR__ . '/sheetclient.php nextevent ';
+                            $resp = shell_exec($command . $next['nextevent']);
+                            respond($client, $event['replyToken'], $resp);
                         }
                     }
                     else if(isset($source['groupId']) && $source['groupId'] == $CONF['DEBUG_ROOM_ID'])
@@ -200,3 +144,38 @@ foreach ($client->parseEvents() as $event) {
             break;
     }
 };
+
+function respond($client, $token, $message)
+{
+    $out = strpos($message, "got it") !== false ? mb_substr($message, 7): 'something went wrong, go find Serrated';
+    $client->replyMessage([
+            'replyToken' => $token,
+            'messages' => [
+                [
+                    'type' => 'text',
+                    'text' => $out
+                ]
+            ]
+        ]);
+}
+
+function formatUpdateArgs($update)
+{
+    $slice = mb_strtolower($update["slice"]);
+    $count = mb_strtolower($update["count"]);
+    $timestring = $update["lag"];
+
+    if(preg_match('/^\d+h\d+$/', $timestring))
+    {
+        $timestring .= 'm';
+    }
+    if(empty($timestring))
+    {
+        $timestring = "now";
+    }
+    
+    $updatelag = CarbonInterval::fromString($timestring);
+    $updatetime = Carbon::now('America/Toronto')->sub($updatelag);
+    $args = ' "' . $slice . '" "' . $count . '" "' . $updatetime->format('m/d/Y H:i') . '"';
+    return $args;
+}
