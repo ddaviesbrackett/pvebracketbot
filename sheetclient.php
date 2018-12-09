@@ -150,6 +150,22 @@ if ($argv[1] == 'countupdate' || $argv[1] == 'pvpupdate') { //!countupdate 2.9 3
 
   print "got it: ". $slice . " updated\nfrom " . $previous[0][0][0] . ' ' . $previous[1][0][0] . "\nto " . $newcount . ' ' . $newtime;
 }
+else if ($argv[1] == 'nextevent')
+{
+  $ev = $argv[2];
+  $data = [
+    ['range' => 'Formulas!W18', 'values' => [[$ev]]]
+  ];
+
+  $requestBody = new Google_Service_Sheets_BatchUpdateValuesRequest();
+  $requestBody->setData($data);
+
+  $requestBody->setValueInputOption('USER_ENTERED');
+  $requestBody->setIncludeValuesInResponse(true);
+
+  $new = $service->spreadsheets_values->batchUpdate($spreadsheetId, $requestBody);
+  print "got it: next event set to " . $new[0]["updatedData"][0][0];
+}
 else {
   print "invalid parameters";
 }
