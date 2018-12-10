@@ -171,7 +171,7 @@ else if ($argv[1] == 'nextevent')
 else if ($argv[1] == 'sliceend')
 {
   $sheetData = $service->spreadsheets_values->batchGet($spreadsheetId, [
-    'ranges'=>['Formulas!U4:U8', 'Formulas!W16:W19', 'Updates!P4:Q26', 'Formulas!W4:Y8', 'Formulas!X19', 'Formulas!S4'],
+    'ranges'=>['Formulas!U4:U8', 'Formulas!W16:W19', 'Updates!P4:Q26', 'Formulas!S4:S8', 'Formulas!X19'],
     'majorDimension' => 'COLUMNS',
     'dateTimeRenderOption' => 'SERIAL_NUMBER',
     'valueRenderOption' => 'UNFORMATTED_VALUE'
@@ -182,9 +182,8 @@ else if ($argv[1] == 'sliceend')
   $nextEventNumber = $sheetData['valueRanges'][1]["values"][0][2];
   $nextEvent = $sheetData['valueRanges'][1]["values"][0][3];
   $prejoinInfo = $sheetData['valueRanges'][2]["values"];
-  $eventEndTimes = $sheetData['valueRanges'][3]["values"];
+  $eventEndTimes = $sheetData['valueRanges'][3]["values"][0];
   $nextEventLength = $sheetData['valueRanges'][4]["values"][0][0];
-  $thisEventEndTime = $sheetData['valueRanges'][5]["values"][0][0];
   
   for( $i = 0; $i < 5; $i++)
   {
@@ -228,9 +227,8 @@ else if ($argv[1] == 'sliceend')
   foreach($slicesToProcess as $slice)
   {
     $row = $slice + 3;
-    $endTime = $eventEndTimes[$nextEventLength === 3?0 : $nextEventLength == 4?1 : 2][$slice];
     $updates[] = ['range' => 'Updates!A' . $row, 'values' => [[$nextEventAbbrev]]];
-    $updates[] = ['range' => 'Formulas!S' . $row, 'values' => [[$endTime]]];
+    $updates[] = ['range' => 'Formulas!S' . $row, 'values' => [[$eventEndTimes[$slice - 1] + $nextEventLength]]];
     for($i = 0; $i < 4; $i++)
     {
       $updates[] = ['range' => 'Updates!K' . $row, 'values' => [['']]];
@@ -246,7 +244,6 @@ else if ($argv[1] == 'sliceend')
   if(in_array(5, $slicesToProcess))
   {
     $operations["updateDimensionProperties"] = changeColumnVisibility(false);
-    $updates[] = ['range' => 'Formulas!W4' . $row, 'values' => [[$thisEventEndTime + 3]]]; //3 days on
     $updates[] = ['range' => 'Formulas!W16' . $row, 'values' => [[$nextEventNumber]]]; //make next event current event
     $updates[] = ['range' => 'Updates!C3', 'values' => [[$nextEvent]]];
   }
