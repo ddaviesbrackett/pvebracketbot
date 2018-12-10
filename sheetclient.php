@@ -248,6 +248,7 @@ else if ($argv[1] == 'sliceend')
     $operations["updateDimensionProperties"] = changeColumnVisibility(false);
     $updates[] = ['range' => 'Formulas!W4' . $row, 'values' => [[$thisEventEndTime + 3]]]; //3 days on
     $updates[] = ['range' => 'Formulas!W16' . $row, 'values' => [[$nextEventNumber]]]; //make next event current event
+    $updates[] = ['range' => 'Updates!C3', 'values' => [[$nextEvent]]];
   }
 
   $requestBody = new Google_Service_Sheets_BatchUpdateValuesRequest();
