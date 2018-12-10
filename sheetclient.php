@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/config.php';
+require_once(__DIR__ . '/vendor/LINEBotTiny.php');
+
 
 define('SHEETS_APPLICATION_NAME', 'PVE sheet bot backend client');
 define('SHEETS_CLIENT_SECRET_PATH', __DIR__ . '/client_secret.json');
@@ -195,13 +197,19 @@ else if ($argv[1] == 'sliceend')
 
   if(count($slicesToProcess) === 0)
   {
+    print 'got it: no slice ends to process right now';
     return; //nothing to do
   }
 
 
   if($currentEvent === $nextEvent)
   {
-    //TODO report error in bracket editor room
+    $channelAccessToken = $CONF['BOT_CHANNEL_ACCESS'];
+    $channelSecret = $CONF['BOT_CHANNEL_SECRET'];
+    $client = new LINEBotTiny($channelAccessToken, $channelSecret);
+    $msg = 'uhoh: the next event hasn\'t been set yet, and at least one slice is over! time to go look up the id and tell me what the next event is ("next event ##")\r\nDon\'t worry, I\'ll do the slice-end stuff as soon as you tell me what the new event is.';
+    $client->pushMessage(['to' =>$CONF['LISTEN_ROOM_ID'], 'messages' => [['type' => 'text', 'text' => $msg]]]);
+    print 'got it: updaters nagged';
     return;
   }
 
