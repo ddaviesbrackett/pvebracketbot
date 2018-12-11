@@ -244,7 +244,7 @@ else if ($argv[1] == 'sliceend')
   if(in_array(5, $slicesToProcess))
   {
     $operations["updateDimensionProperties"] = changeColumnVisibility(false);
-    $updates[] = ['range' => 'Formulas!W16' . $row, 'values' => [[$nextEventNumber]]]; //make next event current event
+    $updates[] = ['range' => 'Formulas!W16', 'values' => [[$nextEventNumber]]]; //make next event current event
     $updates[] = ['range' => 'Updates!C3', 'values' => [[$nextEvent]]];
   }
 
