@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/config.php';
+require_once(__DIR__ . '/vendor/LINEBotTiny.php');
+
 
 define('SHEETS_APPLICATION_NAME', 'PVE sheet bot backend client');
 define('SHEETS_CLIENT_SECRET_PATH', __DIR__ . '/client_secret.json');
@@ -104,8 +106,7 @@ $slice2row = [
 ];
 
 
-if ($argv[1] == 'countupdate') { //!countupdate 2.9 338 "7/19/2018 6:22:00"
-  
+if ($argv[1] == 'countupdate' || $argv[1] == 'pvpupdate') { //!countupdate 2.9 338 "7/19/2018 6:22:00"
   $slice = $argv[2];
   $row = $slice2row[$slice];
 
@@ -118,7 +119,6 @@ if ($argv[1] == 'countupdate') { //!countupdate 2.9 338 "7/19/2018 6:22:00"
   $updatetime = $argv[4];
 
   $previous = $service->spreadsheets_values->batchGet($spreadsheetId, ["ranges"=>[$countcell, $updatetimecell]]);
-
 
   $data = [
     ['range' => $updatetimecell, 'values' => [[$updatetime]]]
@@ -151,41 +151,14 @@ if ($argv[1] == 'countupdate') { //!countupdate 2.9 338 "7/19/2018 6:22:00"
   $newcount = $new[count($data) - 1]["updatedData"][0][0]; //count is the last
 
   print "got it: ". $slice . " updated\nfrom " . $previous[0][0][0] . ' ' . $previous[1][0][0] . "\nto " . $newcount . ' ' . $newtime;
-
 }
-else if ($argv[1] == 'pvpupdate') {
-  $slice = $argv[2];
-  $row = $slice2row[$slice];
-  
-  $countcell = 'D' . $row;
-  $updatetimecell = 'H' . $row;
-  $fliptimecell = 'K' . $row;
-  $flipcountcell = 'M' . $row;
-
-  $count = $argv[3];
-  $updatetime = $argv[4];
-
-  $previous = $service->spreadsheets_values->batchGet($spreadsheetId, ["ranges"=>[$countcell, $updatetimecell]]);
-
+else if ($argv[1] == 'nextevent')
+{
+  $ev = $argv[2];
   $data = [
-    ['range' => $updatetimecell, 'values' => [[$updatetime]]]
+    ['range' => 'Formulas!W18', 'values' => [[$ev]]]
   ];
-  if($count == 'flip' || $count == 'flip-update'){
-    if($count == 'flip') {
-      $flipcount = $service->spreadsheets_values->get($spreadsheetId, $flipcountcell)[0][0];
-      if(empty($flipcount)) {
-        $flipcount = 1;
-      }
-      else {
-        $flipcount += 1;
-      }
-      $data[] = ['range' => $flipcountcell, 'values' => [[$flipcount]]];
-    }
-    $data[] = ['range' => $fliptimecell, 'values' => [[$updatetime]]];
-  }
-  if($count != 'lag-update' && $count != 'flip-update') {
-    $data[] = ['range' => $countcell, 'values' => [[$count]]];
-  }
+
   $requestBody = new Google_Service_Sheets_BatchUpdateValuesRequest();
   $requestBody->setData($data);
 
@@ -193,12 +166,125 @@ else if ($argv[1] == 'pvpupdate') {
   $requestBody->setIncludeValuesInResponse(true);
 
   $new = $service->spreadsheets_values->batchUpdate($spreadsheetId, $requestBody);
+  print "got it: next event set to " . $new[0]["updatedData"][0][0];
+}
+else if ($argv[1] == 'sliceend')
+{
+  $sheetData = $service->spreadsheets_values->batchGet($spreadsheetId, [
+    'ranges'=>['Formulas!U4:U8', 'Formulas!W16:W19', 'Updates!P4:Q26', 'Formulas!S4:S8', 'Formulas!X19'],
+    'majorDimension' => 'COLUMNS',
+    'dateTimeRenderOption' => 'SERIAL_NUMBER',
+    'valueRenderOption' => 'UNFORMATTED_VALUE'
+    ]);
+  $slicesToProcess = [];
+  $endedSlices = $sheetData['valueRanges'][0]["values"][0];
+  $currentEvent = $sheetData['valueRanges'][1]["values"][0][1];
+  $nextEventNumber = $sheetData['valueRanges'][1]["values"][0][2];
+  $nextEvent = $sheetData['valueRanges'][1]["values"][0][3];
+  $prejoinInfo = $sheetData['valueRanges'][2]["values"];
+  $eventEndTimes = $sheetData['valueRanges'][3]["values"][0];
+  $nextEventLength = $sheetData['valueRanges'][4]["values"][0][0];
   
-  $newtime = $new[0]["updatedData"][0][0]; //time is the first
-  $newcount = $new[count($data) - 1]["updatedData"][0][0]; //count is the last
+  for( $i = 0; $i < 5; $i++)
+  {
+    $endedSlice = $endedSlices[$i];
+    if($endedSlice === 'over')
+    {
+      $slicesToProcess[] = $i + 1;
+    }
+  }
 
-  print "got it: pvp ". $slice . " updated\nfrom " . $previous[0][0][0] . ' ' . $previous[1][0][0] . "\nto " . $newcount . ' ' . $newtime;
+  if(count($slicesToProcess) === 0)
+  {
+    print 'got it: no slice ends to process right now';
+    return; //nothing to do
+  }
+
+
+  if($currentEvent === $nextEvent)
+  {
+    $channelAccessToken = $CONF['BOT_CHANNEL_ACCESS'];
+    $channelSecret = $CONF['BOT_CHANNEL_SECRET'];
+    $client = new LINEBotTiny($channelAccessToken, $channelSecret);
+    $msg = 'uhoh: the next event hasn\'t been set yet, and at least one slice is over! time to go look up the id and tell me what the next event is ("next event ##")\r\nDon\'t worry, I\'ll do the slice-end stuff as soon as you tell me what the new event is.';
+    $client->pushMessage(['to' =>$CONF['LISTEN_ROOM_ID'], 'messages' => [['type' => 'text', 'text' => $msg]]]);
+    print 'got it: updaters nagged';
+    return;
+  }
+
+  $nextEventAbbrev = preg_replace('/[^A-Z]/', '', $nextEvent);
+
+  $operations = [];
+  $updates = [];
+
+  if(in_array(1, $slicesToProcess))
+  {
+    # when the first slice ends, a new event starts - unhide Updates!A, add new event to Updates!C3
+    $operations["updateDimensionProperties"] = changeColumnVisibility(true);
+    $updates[] = ['range' => 'Updates!C3', 'values' => [[$nextEvent . ' / ' . $currentEvent]]];
+  }
+
+  foreach($slicesToProcess as $slice)
+  {
+    $row = $slice + 3;
+    $updates[] = ['range' => 'Updates!A' . $row, 'values' => [[$nextEventAbbrev]]];
+    $updates[] = ['range' => 'Formulas!S' . $row, 'values' => [[$eventEndTimes[$slice - 1] + $nextEventLength]]];
+    for($i = 0; $i < 4; $i++)
+    {
+      $updates[] = ['range' => 'Updates!K' . $row, 'values' => [['']]];
+      $updates[] = ['range' => 'Updates!M' . $row, 'values' => [['']]];
+      $updates[] = ['range' => 'Updates!P' . $row, 'values' => [['']]];
+      $updates[] = ['range' => 'Updates!Q' . $row, 'values' => [['']]];
+      $updates[] = ['range' => 'Updates!D' . $row, 'values' => [[$prejoinInfo[0][$row - 3]]]];
+      $updates[] = ['range' => 'Updates!H' . $row, 'values' => [[$prejoinInfo[1][$row - 3]]]];
+      $row += 6;
+    }
+  }
+
+  if(in_array(5, $slicesToProcess))
+  {
+    $operations["updateDimensionProperties"] = changeColumnVisibility(false);
+    $updates[] = ['range' => 'Formulas!W16', 'values' => [[$nextEventNumber]]]; //make next event current event
+    $updates[] = ['range' => 'Updates!C3', 'values' => [[$nextEvent]]];
+  }
+
+  $requestBody = new Google_Service_Sheets_BatchUpdateValuesRequest();
+  $requestBody->setData($updates);
+  $requestBody->setValueInputOption('USER_ENTERED');
+  $requestBody->setIncludeValuesInResponse(false);
+  $service->spreadsheets_values->batchUpdate($spreadsheetId, $requestBody);
+
+  if(count($operations) > 0)
+  {
+    $requestBody = new Google_Service_Sheets_BatchUpdateSpreadsheetRequest();
+    $requestBody->setRequests($operations);
+    $requestBody->setIncludeSpreadsheetInResponse(false);
+    $requestBody->setResponseIncludeGridData(false);
+    $service->spreadsheets->batchUpdate($spreadsheetId, $requestBody);
+  }
+
+  print "got it: slice changeover happened for slice(s) " . join(',', $slicesToProcess);
 }
 else {
   print "invalid parameters";
+}
+
+function changeColumnVisibility($show)
+{
+  $req = new Google_Service_Sheets_UpdateDimensionPropertiesRequest();
+  
+  $range = new Google_Service_Sheets_DimensionRange();
+  $range->setDimension('COLUMNS');
+  $range->setStartIndex(0);
+  $range->setEndIndex(1);
+  $range->setSheetId(0);
+  $req->setRange($range);
+  $req->setFields("*");
+
+  $props = new Google_Service_Sheets_DimensionProperties();
+  $props->setHiddenByUser(!$show);
+  $props->setPixelSize($show?60:0);
+  $req->setProperties($props);
+
+  return $req;
 }
