@@ -206,7 +206,7 @@ else if ($argv[1] == 'sliceend')
     $channelAccessToken = $CONF['BOT_CHANNEL_ACCESS'];
     $channelSecret = $CONF['BOT_CHANNEL_SECRET'];
     $client = new LINEBotTiny($channelAccessToken, $channelSecret);
-    $msg = 'uhoh: the next event hasn\'t been set yet, and at least one slice is over! time to go look up the id and tell me what the next event is ("next event ##")\r\nDon\'t worry, I\'ll do the slice-end stuff as soon as you tell me what the new event is.';
+    $msg = 'uhoh: the next event hasn\'t been set yet, and at least one slice is over! time to go look up the id and tell me what the next event is ("next event ##").  Don\'t worry, I\'ll do the slice-end stuff as soon as you tell me what the new event is.';
     $client->pushMessage(['to' =>$CONF['LISTEN_ROOM_ID'], 'messages' => [['type' => 'text', 'text' => $msg]]]);
     print 'got it: updaters nagged';
     return;
@@ -231,12 +231,18 @@ else if ($argv[1] == 'sliceend')
     $updates[] = ['range' => 'Formulas!S' . $row, 'values' => [[$eventEndTimes[$slice - 1] + $nextEventLength]]];
     for($i = 0; $i < 4; $i++)
     {
+      //clear flip time + count
       $updates[] = ['range' => 'Updates!K' . $row, 'values' => [['']]];
       $updates[] = ['range' => 'Updates!M' . $row, 'values' => [['']]];
-      $updates[] = ['range' => 'Updates!P' . $row, 'values' => [['']]];
-      $updates[] = ['range' => 'Updates!Q' . $row, 'values' => [['']]];
-      $updates[] = ['range' => 'Updates!D' . $row, 'values' => [[$prejoinInfo[0][$row - 3]]]];
-      $updates[] = ['range' => 'Updates!H' . $row, 'values' => [[$prejoinInfo[1][$row - 3]]]];
+      
+      //clear prejoin count + time
+      //$updates[] = ['range' => 'Updates!P' . $row, 'values' => [['']]];
+      //$updates[] = ['range' => 'Updates!Q' . $row, 'values' => [['']]];
+      
+      //move prejoin info to current info
+      //$updates[] = ['range' => 'Updates!D' . $row, 'values' => [[$prejoinInfo[0][$row - 3]]]];
+      //$updates[] = ['range' => 'Updates!H' . $row, 'values' => [[$prejoinInfo[1][$row - 3]]]];
+      
       $row += 6;
     }
   }
