@@ -15,7 +15,7 @@ $helptext=[
 '' => 'available help:
 !help: general usage (this message)
 !help count: how to tell me to update a count
-!help nextevent: how to tell me what the next event is'
+!help nextevent: how to do slice switchover'
 ,'count' => "
     count update formats:
     <slice><count>[report lag]
@@ -48,7 +48,15 @@ $helptext=[
     5.7@555, 1h15m
     3.6 666, 3h20"
 ,'nextevent' => "
-    (not yet implemented)
+    slice switchover:
+    next event ##
+
+    where ## is the event number from the Events tab of the spreadsheet
+
+    Or the special event 888 for alliance events
+    Or the special event 999 for boss events
+
+    Run this command anytime, and any slices that have ended will be switched over to the new event.
 "
 ];
 
