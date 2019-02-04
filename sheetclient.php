@@ -235,13 +235,9 @@ else if ($argv[1] == 'sliceend')
       $updates[] = ['range' => 'Updates!K' . $row, 'values' => [['']]];
       $updates[] = ['range' => 'Updates!M' . $row, 'values' => [['']]];
       
-      //clear prejoin count + time
-      //$updates[] = ['range' => 'Updates!P' . $row, 'values' => [['']]];
-      //$updates[] = ['range' => 'Updates!Q' . $row, 'values' => [['']]];
-      
-      //move prejoin info to current info
-      //$updates[] = ['range' => 'Updates!D' . $row, 'values' => [[$prejoinInfo[0][$row - 3]]]];
-      //$updates[] = ['range' => 'Updates!H' . $row, 'values' => [[$prejoinInfo[1][$row - 3]]]];
+      //clear current count & update time
+      $updates[] = ['range' => 'Updates!D' . $row, 'values' => [['']]]; // or replace with prejoin info: [[$prejoinInfo[0][$row - 3]]]];
+      $updates[] = ['range' => 'Updates!H' . $row, 'values' => [['']]]; // or replace with prejoin info: [[$prejoinInfo[1][$row - 3]]]];
       
       $row += 6;
     }
