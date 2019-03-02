@@ -99,7 +99,7 @@ foreach ($client->parseEvents() as $event) {
                             {
                                 $command = 'php72 ' . __DIR__ . '/sheetclient.php countupdate ';
                                 $update = $result["c"];
-                                trigger_aimbots($client, $update);
+                                trigger_aimbots($update);
                                 $args = formatUpdateArgs($update);
                                 $resp = shell_exec($command . $args);
                                 respond($client, $event['replyToken'], $resp);
