@@ -6,6 +6,8 @@ $CONF=['BOT_CHANNEL_ACCESS'=>'',
  'DEBUG_ROOM_ID' => '',
  'AIMBOT_THRESHOLD' => '',
  'AIMBOT_ROOMS' => [],
+ 'AIMBOT_CHANNEL_ACCESS'=>'',
+ 'AIMBOT_CHANNEL_SECRET'=>'',
 ];
 
 define('SHEETS_CREDENTIALS_PATH', '~/.credentials/sheets.googleapis.com-pvescribebot.json');
