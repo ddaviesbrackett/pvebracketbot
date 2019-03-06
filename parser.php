@@ -1141,8 +1141,8 @@ class Parser {
     $this->peg_c22 = array( "type" => "class", "value" => "[0-9]", "description" => "[0-9]" );
     $this->peg_c23 = "h";
     $this->peg_c24 = array( "type" => "literal", "value" => "h", "description" => "\"h\"" );
-    $this->peg_c25 = "m";
-    $this->peg_c26 = array( "type" => "literal", "value" => "m", "description" => "\"m\"" );
+    $this->peg_c25 = " ?mins? ago| ?m";
+    $this->peg_c26 = array( "type" => "literal", "value" => " ?mins? ago| ?m", "description" => "\" ?mins? ago| ?m\"" );
     $this->peg_c27 = "next event";
     $this->peg_c28 = array( "type" => "literal", "value" => "next event", "description" => "\"next event\"" );
     $this->peg_c29 = "pvp";
