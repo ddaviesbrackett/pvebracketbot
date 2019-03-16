@@ -42,7 +42,7 @@ LagOnlyUpdateType
 
 
 Slice
- = [12345] "." [7689] {return $this->text();}
+ = $([12345] "." [7689])
  
 PVECountSpec
  = dg:Digits {
@@ -51,20 +51,20 @@ PVECountSpec
    }
    return $dg;
  } 
- / "flip" {
-   return $this->text();
- }
- 
+/ ("flipped"i / "flip"i) {
+  return "flip";
+}
+
 PVPCountSpec
  = dg:Digits {
-   if ($dg < 1 || $dg > 9999) {
+   if ($dg < 1 || $dg > 4999) {
      return "flip";
    }
    return $dg;
  } 
- / "flip" {
-   return $this->text();
- }
+/ ("flipped"i / "flip"i) {
+  return "flip";
+}
 
 Digits
  = [0-9]+ {
@@ -75,14 +75,17 @@ Digits
    }
    return NULL;
  }
+
+ Minutes
+  = ("mins"i / "min"i / "m"i) (_ "ago"i)? {
+    return "m";
+  }
  
 ReportLag 
- = (Digits "h" Digits "m"
+ = (Digits "h" Digits Minutes
  / Digits "h" Digits
- / Digits "m"
- / Digits "h" ){
-  return $this->text();
- }
+ / Digits Minutes
+ / Digits "h" )
 
 Nextevent
 = "next event"i _ eventnum:Digits {return ["n"=> ["nextevent" => $eventnum]];}
