@@ -11,8 +11,9 @@ final class ParserTest extends TestCase
 	protected function setUp(): void
 	{
 		$this->randomPVECount = rand(1,999); //yes, just plan rand, don't need crypto here; counts go up to 999 for pve
-		$this->randompPVPSeasonCount = rand(1,4999); //up to 4999 for pvp seasons
+		$this->randompPvpSeasonCount = rand(1,4999); //up to 4999 for pvp seasons
 		$this->randomSlice = rand(1,5) . '.' . rand(6,9);	 //slices can be between 1.6 and 5.9
+		$this->randomPvpSeasonDesignator = 'cl' . rand(6,9);
 		$this->parser = new PhpPegJs\Parser;
 	}
 
@@ -86,146 +87,76 @@ final class ParserTest extends TestCase
 
 	public function testImmediateFlip(): void
 	{
+		$desired = ["c" => [
+				"slice"=> $this->randomSlice
+				,"count" => 'flip'
+				,"lag" => NULL
+				]
+			];
 		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
+			$this->parser->parse($this->randomSlice . " flip"), 
+			$desired
 		);
-	}
-/*
-	public function testNextEventHelp(): void
-	{
 		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
-	}
-
-	public function testNextEventHelp(): void
-	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
+			$this->parser->parse($this->randomSlice . " flipped"), 
+			$desired
 		);
 	}
 
-	public function testNextEventHelp(): void
+
+	//_____________________________________________
+
+	public function testImmediatePvpCount(): void
 	{
 		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
+			$this->parser->parse('pvp ' . $this->randomPvpSeasonDesignator . " " . $this->randompPvpSeasonCount), 
+			["pvp" => [
+				"slice"=> $this->randomPvpSeasonDesignator
+				,"count" => $this->randompPvpSeasonCount
+				,"lag" => NULL
+				]
+			]
 		);
 	}
 
-	public function testNextEventHelp(): void
+	public function testImmediatePvpCountInvalidClearanceLevelLow(): void
 	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
+		$this->expectException(PhpPegJs\SyntaxError::class);
+		$this->parser->parse("pvp cl3 111");
+	}
+		public function testImmediatePvpCountInvalidClearanceLevelHigh(): void
+	{
+		$this->expectException(PhpPegJs\SyntaxError::class);
+		$this->parser->parse("pvp cl13 111");
 	}
 
-	public function testNextEventHelp(): void
+	public function testImmediatePvpCountInvalidCountLow(): void
 	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
+		$this->expectException(PhpPegJs\SyntaxError::class);
+		$this->parser->parse('pvp ' . $this->randomPvpSeasonDesignator . " " . 0);
 	}
 
-	public function testNextEventHelp(): void
+	public function testImmediatePvpCountInvalidCountHigh(): void
 	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
+		$this->expectException(PhpPegJs\SyntaxError::class);
+		$this->parser->parse('pvp ' . $this->randomPvpSeasonDesignator . " " . 19999);
 	}
 
-	public function testNextEventHelp(): void
+	public function testImmediatePvpFlip(): void
 	{
+		$desired = ["pvp" => [
+				"slice"=> $this->randomPvpSeasonDesignator
+				,"count" => 'flip'
+				,"lag" => NULL
+				]
+			];
 		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
+			$this->parser->parse('pvp ' . $this->randomPvpSeasonDesignator . " flip"), 
+			$desired
+		);
+		$this->assertEquals(
+			$this->parser->parse('pvp ' . $this->randomPvpSeasonDesignator . " flipped"), 
+			$desired
 		);
 	}
-
-	public function testNextEventHelp(): void
-	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
-	}
-
-	public function testNextEventHelp(): void
-	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
-	}
-
-	public function testNextEventHelp(): void
-	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
-	}
-
-	public function testNextEventHelp(): void
-	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
-	}
-
-	public function testNextEventHelp(): void
-	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
-	}
-
-	public function testNextEventHelp(): void
-	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
-	}
-
-	public function testNextEventHelp(): void
-	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
-	}
-
-	public function testNextEventHelp(): void
-	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
-	}
-
-	public function testNextEventHelp(): void
-	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
-	}
-
-	public function testNextEventHelp(): void
-	{
-		$this->assertEquals(
-			$this->parser->parse("!help nextevent"), 
-			["h" => ["arg"=> "nextevent"]]
-		);
-	}
-	*/
 }
