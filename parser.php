@@ -272,7 +272,7 @@ class Parser {
     private $peg_c42;
     private $peg_c43;
 
-    private function peg_f0($out, $throwawy) {
+    private function peg_f0($out, $throwaway) {
       return $out;
      }
     private function peg_f1($arg) {

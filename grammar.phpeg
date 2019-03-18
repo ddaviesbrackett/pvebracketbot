@@ -2,7 +2,7 @@
 // >pegjs --plugin phpegjs --output parser.php grammar.phpeg
 
 Expression
- = out:(Help / Count / Nextevent / PVPSeason) throwawy:$.* {
+ = out:(Help / Count / Nextevent / PVPSeason) throwaway:$.* {
   return $out;
  }
 
