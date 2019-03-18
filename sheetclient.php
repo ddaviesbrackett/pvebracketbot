@@ -188,7 +188,7 @@ else if ($argv[1] == 'sliceend')
   for( $i = 0; $i < 5; $i++)
   {
     $endedSlice = $endedSlices[$i];
-    if($endedSlice === 'over')
+    if($endedSlice === 'over' || $endedSlice == '0d 0h 0m')
     {
       $slicesToProcess[] = $i + 1;
     }
