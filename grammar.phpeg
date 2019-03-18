@@ -44,10 +44,7 @@ Slice
  = $([12345] "." [7689])
  
 PVECountSpec
- = dg:Digits {
-   if ($dg < 1 || $dg > 999) {
-     return "flip";
-   }
+= dg:Digits & { return $dg > 0 && $dg < 1000; } {
    return $dg;
  } 
 / ("flipped"i / "flip"i) {
@@ -55,10 +52,7 @@ PVECountSpec
 }
 
 PVPCountSpec
- = dg:Digits {
-   if ($dg < 1 || $dg > 4999) {
-     return "flip";
-   }
+ = dg:Digits & { return $dg > 0 && $dg < 5000; } {
    return $dg;
  } 
 / ("flipped"i / "flip"i) {
