@@ -2,10 +2,9 @@
 // >pegjs --plugin phpegjs --output parser.php grammar.phpeg
 
 Expression
- = Help
- / Count
- / Nextevent
- / PVPSeason
+ = out:(Help / Count / Nextevent / PVPSeason) throwawy:$.* {
+  return $out;
+ }
 
 Help
 = "!help"i _ arg:HelpArg? {
@@ -77,9 +76,13 @@ Digits
  }
 
  Minutes
-  = ("mins"i / "min"i / "m"i) (_ "ago"i)? {
+  = _? ("mins"i / "min"i / "m"i) (_ "ago"i)? {
     return "m";
   }
+Hours
+ = _? "h"i{
+    return "h";
+ }
  
 ReportLag 
  = (Digits "h" Digits Minutes
