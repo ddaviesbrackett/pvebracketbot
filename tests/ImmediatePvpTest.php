@@ -8,7 +8,7 @@ final class ImmediatePvpTest extends ParserTest
 	protected function setUp(): void
 	{
 		parent::setUp();
-		$this->randompSeasonCount = rand(1,4999); //up to 4999 for pvp seasons
+		$this->randomSeasonCount = rand(1,4999); //up to 4999 for pvp seasons
 		$this->randomSeasonDesignator = 'cl' . rand(6,9);
 	}
 
@@ -16,28 +16,28 @@ final class ImmediatePvpTest extends ParserTest
 	{
 		$desired = ["pvp" => [
 				"slice"=> $this->randomSeasonDesignator
-				,"count" => $this->randompSeasonCount
+				,"count" => $this->randomSeasonCount
 				,"lag" => NULL
 				]
 			];
 		$this->assertEquals(
-			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . " " . $this->randompSeasonCount), 
+			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . " " . $this->randomSeasonCount), 
 			$desired
 		);
 		$this->assertEquals(
-			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . "@" . $this->randompSeasonCount), 
+			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . "@" . $this->randomSeasonCount), 
 			$desired
 		);
 		$this->assertEquals(
-			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . "@ " . $this->randompSeasonCount), 
+			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . "@ " . $this->randomSeasonCount), 
 			$desired
 		);
 		$this->assertEquals(
-			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . " @ " . $this->randompSeasonCount), 
+			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . " @ " . $this->randomSeasonCount), 
 			$desired
 		);
 		$this->assertEquals(
-			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . " @" . $this->randompSeasonCount), 
+			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . " @" . $this->randomSeasonCount), 
 			$desired
 		);
 	}
