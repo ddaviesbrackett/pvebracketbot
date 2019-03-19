@@ -20,26 +20,11 @@ final class ImmediatePvpTest extends ParserTest
 				,"lag" => NULL
 				]
 			];
-		$this->assertEquals(
-			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . " " . $this->randomSeasonCount), 
-			$desired
-		);
-		$this->assertEquals(
-			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . "@" . $this->randomSeasonCount), 
-			$desired
-		);
-		$this->assertEquals(
-			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . "@ " . $this->randomSeasonCount), 
-			$desired
-		);
-		$this->assertEquals(
-			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . " @ " . $this->randomSeasonCount), 
-			$desired
-		);
-		$this->assertEquals(
-			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . " @" . $this->randomSeasonCount), 
-			$desired
-		);
+		$this->assertEquals($desired, $this->parser->parse('pvp ' . $this->randomSeasonDesignator . " " . $this->randomSeasonCount));
+		$this->assertEquals($desired, $this->parser->parse('pvp ' . $this->randomSeasonDesignator . "@" . $this->randomSeasonCount));
+		$this->assertEquals($desired, $this->parser->parse('pvp ' . $this->randomSeasonDesignator . "@ " . $this->randomSeasonCount));
+		$this->assertEquals($desired, $this->parser->parse('pvp ' . $this->randomSeasonDesignator . " @ " . $this->randomSeasonCount));
+		$this->assertEquals($desired, $this->parser->parse('pvp ' . $this->randomSeasonDesignator . " @" . $this->randomSeasonCount));
 	}
 
 	public function testInvalidClearanceLevelLow(): void
@@ -73,13 +58,7 @@ final class ImmediatePvpTest extends ParserTest
 				,"lag" => NULL
 				]
 			];
-		$this->assertEquals(
-			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . " flip"), 
-			$desired
-		);
-		$this->assertEquals(
-			$this->parser->parse('pvp ' . $this->randomSeasonDesignator . " flipped"), 
-			$desired
-		);
+		$this->assertEquals($desired, $this->parser->parse('pvp ' . $this->randomSeasonDesignator . " flip"));
+		$this->assertEquals($desired, $this->parser->parse('pvp ' . $this->randomSeasonDesignator . " flipped"));
 	}
 }

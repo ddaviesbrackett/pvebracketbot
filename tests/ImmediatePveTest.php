@@ -20,30 +20,12 @@ final class ImmediatePveTest extends ParserTest
 				,"lag" => NULL
 				]
 			];
-		$this->assertEquals(
-			$this->parser->parse($this->randomSlice . " " . $this->randomCount), 
-			$desired
-		);
-		$this->assertEquals(
-			$this->parser->parse($this->randomSlice . "@" . $this->randomCount), 
-			$desired
-		);
-		$this->assertEquals(
-			$this->parser->parse($this->randomSlice . "@ " . $this->randomCount), 
-			$desired
-		);
-		$this->assertEquals(
-			$this->parser->parse($this->randomSlice . " @ " . $this->randomCount), 
-			$desired
-		);
-		$this->assertEquals(
-			$this->parser->parse($this->randomSlice . " at " . $this->randomCount), 
-			$desired
-		);
-		$this->assertEquals(
-			$this->parser->parse($this->randomSlice . " @" . $this->randomCount), 
-			$desired
-		);
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . "@" . $this->randomCount));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . "@ " . $this->randomCount));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " @ " . $this->randomCount));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " at " . $this->randomCount));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " @" . $this->randomCount));
 	}
 
 	public function testInvalidClearanceLevelLow(): void
@@ -91,13 +73,7 @@ final class ImmediatePveTest extends ParserTest
 				,"lag" => NULL
 				]
 			];
-		$this->assertEquals(
-			$this->parser->parse($this->randomSlice . " flip"), 
-			$desired
-		);
-		$this->assertEquals(
-			$this->parser->parse($this->randomSlice . " flipped"), 
-			$desired
-		);
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " flip"));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " flipped"));
 	}
 }
