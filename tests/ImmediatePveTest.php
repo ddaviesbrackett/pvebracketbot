@@ -37,6 +37,10 @@ final class ImmediatePveTest extends ParserTest
 			$desired
 		);
 		$this->assertEquals(
+			$this->parser->parse($this->randomSlice . " at " . $this->randomCount), 
+			$desired
+		);
+		$this->assertEquals(
 			$this->parser->parse($this->randomSlice . " @" . $this->randomCount), 
 			$desired
 		);
