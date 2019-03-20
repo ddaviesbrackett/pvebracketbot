@@ -75,4 +75,17 @@ final class LagTest extends ParserTest
 		$this->doTest($desired, " 12h 10 m");
 		$this->doTest($desired, " 12 h 10 m");
 	}
+
+	public function testHoursAndMinutesWithoutFinalM(): void
+	{
+		$desired = ["c" => [
+				"slice"=> $this->randomSlice
+				,"count" => $this->randomCount
+				,"lag" => "12h10"
+				]
+			];
+		$this->doTest($desired, " 12h10");
+		$this->doTest($desired, " 12 h10");
+		$this->doTest($desired, " 12h 10");
+	}
 }
