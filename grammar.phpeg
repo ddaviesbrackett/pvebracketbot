@@ -2,13 +2,12 @@
 // >pegjs --plugin phpegjs --output parser.php grammar.phpeg
 
 Expression
- = Help
- / Count
- / Nextevent
- / PVPSeason
+ = out:(Help / Count / Nextevent / PVPSeason) throwaway:$.* {
+  return $out;
+ }
 
 Help
-= "!help"i _ arg:HelpArg? {
+= "!help"i _? arg:HelpArg? {
   return ["h"=> ["arg" => $arg]];
 }
 
@@ -17,18 +16,39 @@ HelpArg
  / "nextevent"i
 
  _ "whitespace"
-  = [ \t\n\r]*
+  = [ \t\n\r]+
+
+At 
+ = _? "@" _?
+ / _ "at"i _ 
+ / _
   
 Count
- = slice:Slice _ ("@" _ )? cnt:PVECountSpec _ lag:ReportLag? {
+ = slice:Slice At cnt:PVECountSpec lag:ReportLag? {
    return ["c" => [
      "slice" => $slice
      ,"count" => $cnt
      ,"lag" => $lag
    ]];
  }
- / slice:Slice _ t:LagOnlyUpdateType _ lag:ReportLag {
+ / slice:Slice _ t:LagOnlyUpdateType lag:ReportLag {
    return ["c" => [
+     "slice" => $slice
+     ,"count" => $t
+     ,"lag" => $lag
+   ]];
+ }
+
+ PVPSeason
+ = slice:PVPSlice At cnt:PVPCountSpec lag:ReportLag? {
+   return ["pvp" => [
+     "slice" => $slice
+     ,"count" => $cnt
+     ,"lag" => $lag
+   ]];
+ }
+ /  slice:PVPSlice _ t:LagOnlyUpdateType lag:ReportLag {
+   return ["pvp" => [
      "slice" => $slice
      ,"count" => $t
      ,"lag" => $lag
@@ -42,29 +62,27 @@ LagOnlyUpdateType
 
 
 Slice
- = [12345] "." [7689] {return $this->text();}
+ = $([12345] "." [7689])
+
+
+ PVPSlice
+  = "pvp"i _ slicepart:("cl"i [6789]) {return $slicepart[0] . $slicepart[1];}
  
 PVECountSpec
- = dg:Digits {
-   if ($dg < 1 || $dg > 999) {
-     return "flip";
-   }
+= dg:Digits & { return $dg > 0 && $dg < 1000; } {
    return $dg;
  } 
- / "flip" {
-   return $this->text();
- }
- 
+/ ("flipped"i / "flip"i) {
+  return "flip";
+}
+
 PVPCountSpec
- = dg:Digits {
-   if ($dg < 1 || $dg > 9999) {
-     return "flip";
-   }
+ = dg:Digits & { return $dg > 0 && $dg < 5000; } {
    return $dg;
  } 
- / "flip" {
-   return $this->text();
- }
+/ ("flipped"i / "flip"i) {
+  return "flip";
+}
 
 Digits
  = [0-9]+ {
@@ -75,34 +93,24 @@ Digits
    }
    return NULL;
  }
+
+Minutes
+  = dg:Digits _? ("mins"i / "min"i / "m"i) (_ "ago"i)? {
+    return $dg . "m";
+  }
+
+Hours
+ = dg:Digits _? "h"i{
+    return $dg . "h";
+ }
  
 ReportLag 
- = (Digits "h" Digits "m"
- / Digits "h" Digits
- / Digits "m"
- / Digits "h" ){
-  return $this->text();
+ =  _ lag:(hm:(Hours _? Minutes
+ / Hours _? Digits) /*for omitting the minutes designator*/ {
+  return $hm[0] . $hm[2];
  }
+ / Hours
+ / Minutes){return $lag;}
 
 Nextevent
 = "next event"i _ eventnum:Digits {return ["n"=> ["nextevent" => $eventnum]];}
-
- PVPSlice
-  = "pvp"i _ slicepart:("cl"i [6789]) {return $slicepart[0] . $slicepart[1];}
-
-PVPSeason
- = slice:PVPSlice _ ("@" _ )? cnt:PVPCountSpec _ lag:ReportLag? {
-   return ["pvp" => [
-     "slice" => $slice
-     ,"count" => $cnt
-     ,"lag" => $lag
-   ]];
- }
- /  slice:PVPSlice _ t:LagOnlyUpdateType _ lag:ReportLag {
-   return ["pvp" => [
-     "slice" => $slice
-     ,"count" => $t
-     ,"lag" => $lag
-   ]];
- }
-

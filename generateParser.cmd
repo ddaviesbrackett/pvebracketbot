@@ -1,0 +1,1 @@
+@pegjs --plugin phpegjs --output parser.php grammar.phpeg
