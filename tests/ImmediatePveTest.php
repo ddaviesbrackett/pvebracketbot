@@ -29,6 +29,7 @@ final class ImmediatePveTest extends ParserTest
 		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " @ " . $this->randomCount));
 		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " at " . $this->randomCount));
 		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " @" . $this->randomCount));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 4fc (this is throwaway text that doesn not matter)"));
 	}
 
 	public function testInvalidClearanceLevelLow(): void
@@ -78,5 +79,6 @@ final class ImmediatePveTest extends ParserTest
 			];
 		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " flip"));
 		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " flipped"));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " flipped, I don't know when"));
 	}
 }

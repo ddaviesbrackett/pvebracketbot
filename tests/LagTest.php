@@ -19,6 +19,7 @@ final class LagTest extends ParserTest
 	private function doTest($desired, $suffix)
 	{
 		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . $suffix));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . $suffix . " this is extra stuff at the end"));
 	}
 
 	public function testMinutesAlone(): void
