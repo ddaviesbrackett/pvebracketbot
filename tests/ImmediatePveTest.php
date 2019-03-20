@@ -2,6 +2,9 @@
 declare(strict_types=1);
 require_once(__DIR__ . '/ParserTestFixture.php');
 
+/*
+Tests PVE counts with no report lag.
+*/
 final class ImmediatePveTest extends ParserTest
 {
 

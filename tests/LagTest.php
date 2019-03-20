@@ -2,6 +2,10 @@
 declare(strict_types=1);
 require_once(__DIR__ . '/ParserTestFixture.php');
 
+/*
+These tests are just testing the ReportLag aspect of the grammar. Since ReportLag is not a start rule,
+the rule needs to start with a reasonable, already-tested aspect: I chose a simple slice count.
+*/
 final class LagTest extends ParserTest
 {
 
@@ -12,6 +16,11 @@ final class LagTest extends ParserTest
 		$this->randomCount = rand(1,999); //yes, just plan rand, don't need crypto here; counts go up to 999 for pve
 	}
 
+	private function doTest($desired, $suffix)
+	{
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . $suffix));
+	}
+
 	public function testMinutesAlone(): void
 	{
 		$desired = ["c" => [
@@ -20,18 +29,18 @@ final class LagTest extends ParserTest
 				,"lag" => "13m"
 				]
 			];
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 13m"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 13min"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 13mins"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 13m ago"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 13min ago"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 13mins ago"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 13 m"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 13 min"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 13 mins"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 13 m ago"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 13 min ago"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 13 mins ago"));
+		$this->doTest($desired, " 13m");
+		$this->doTest($desired, " 13min");
+		$this->doTest($desired, " 13mins");
+		$this->doTest($desired, " 13m ago");
+		$this->doTest($desired, " 13min ago");
+		$this->doTest($desired, " 13mins ago");
+		$this->doTest($desired, " 13 m");
+		$this->doTest($desired, " 13 min");
+		$this->doTest($desired, " 13 mins");
+		$this->doTest($desired, " 13 m ago");
+		$this->doTest($desired, " 13 min ago");
+		$this->doTest($desired, " 13 mins ago");
 	}
 
 	public function testHoursAlone(): void
@@ -42,10 +51,10 @@ final class LagTest extends ParserTest
 				,"lag" => "2h"
 				]
 			];
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 2h"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 2 h"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 2h ago"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 2 h ago"));
+		$this->doTest($desired, " 2h");
+		$this->doTest($desired, " 2 h");
+		$this->doTest($desired, " 2h ago");
+		$this->doTest($desired, " 2 h ago");
 	}
 
 	public function testHoursAndMinutes(): void
@@ -56,13 +65,13 @@ final class LagTest extends ParserTest
 				,"lag" => "12h10m"
 				]
 			];
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12h10m"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12 h10m"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12h10 m"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12 h 10 m"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12h 10m"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12 h 10m"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12h 10 m"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12 h 10 m"));
+		$this->doTest($desired, " 12h10m");
+		$this->doTest($desired, " 12 h10m");
+		$this->doTest($desired, " 12h10 m");
+		$this->doTest($desired, " 12 h 10 m");
+		$this->doTest($desired, " 12h 10m");
+		$this->doTest($desired, " 12 h 10m");
+		$this->doTest($desired, " 12h 10 m");
+		$this->doTest($desired, " 12 h 10 m");
 	}
 }
