@@ -56,10 +56,13 @@ final class LagTest extends ParserTest
 				,"lag" => "12h10m"
 				]
 			];
-
 		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12h10m"));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12 h10m"));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12h10 m"));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12 h 10 m"));
 		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12h 10m"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12h10"));
-		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12h 10"));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12 h 10m"));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12h 10 m"));
+		$this->assertEquals($desired, $this->parser->parse($this->randomSlice . " " . $this->randomCount . " 12 h 10 m"));
 	}
 }
