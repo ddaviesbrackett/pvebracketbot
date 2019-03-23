@@ -256,6 +256,7 @@ else if ($argv[1] == 'sliceend')
   $requestBody->setValueInputOption('USER_ENTERED');
   $requestBody->setIncludeValuesInResponse(false);
   $service->spreadsheets_values->batchUpdate($spreadsheetId, $requestBody);
+  debugToLine("spreadsheet values update is as follows:\n" . print_r($requestBody, TRUE));
 
   if(count($operations) > 0)
   {
@@ -264,6 +265,7 @@ else if ($argv[1] == 'sliceend')
     $requestBody->setIncludeSpreadsheetInResponse(false);
     $requestBody->setResponseIncludeGridData(false);
     $service->spreadsheets->batchUpdate($spreadsheetId, $requestBody);
+    debugToLine("spreadsheet structure update is as follows:\n" . print_r($requestBody, TRUE));
   }
 
   print "got it: slice changeover happened for slice(s) " . join(',', $slicesToProcess);
