@@ -23,8 +23,11 @@ At
  / _ "at"i _ 
  / _
   
+Comma
+ = _? ",("
+ 
 Count
- = slice:Slice At cnt:PVECountSpec lag:ReportLag? {
+ = slice:Slice At cnt:PVECountSpec Comma? lag:ReportLag? {
    return ["c" => [
      "slice" => $slice
      ,"count" => $cnt
@@ -40,7 +43,7 @@ Count
  }
 
  PVPSeason
- = slice:PVPSlice At cnt:PVPCountSpec lag:ReportLag? {
+ = slice:PVPSlice At cnt:PVPCountSpec Comma? lag:ReportLag? {
    return ["pvp" => [
      "slice" => $slice
      ,"count" => $cnt
@@ -62,7 +65,7 @@ LagOnlyUpdateType
 
 
 Slice
- = $([12345] "." [7689])
+ = $([12345] "." [6789])
 
 
  PVPSlice
