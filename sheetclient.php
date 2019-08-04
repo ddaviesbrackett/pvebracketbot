@@ -285,6 +285,7 @@ function changeColumnVisibility($show)
 
   $props = new Google_Service_Sheets_DimensionProperties();
   $props->setHiddenByUser(!$show);
+  $props->setPixelSize(60);
   $req->setProperties($props);
 
   return $req;

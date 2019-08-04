@@ -25,28 +25,34 @@ $helptext=[
     whitespace allowed between bracketed components
 
     <slice>: standard slice designators, e.g. 1.9 or 5.7
+	         To indicate PVP Season, 'PVP CL#' e.g 'PVP CL6' or 'PVP CL9'
     
     <count>: 0-999, or the word 'flip' (not case sensitive)
 
     the literal \"last\" means change the time, but not the count
     
     [report lag]:
-        optional comma, followed by one of:
+        optional comma/bracket, followed by one of:
         
         ##h
+        ##mins
+        ##min
         ##m
+        ##h##mins
+        ##h##min
         ##h##m
         ##h##
 
-        where ## is a 1- or 2-digit number. 
+        where ## is a 1- or 2-digit numbers.
 
     examples: 
 
     1.9 333 2h
     1.9 @ 444 45m
     1.9 last 46m
-    5.7@555, 1h15m
-    3.6 666, 3h20"
+    5.7@555, 1h15min
+    3.6 666, 3h20
+    2.8 @ 100 (1 mins ago)"
 ,'nextevent' => "
     slice switchover:
     next event ##
