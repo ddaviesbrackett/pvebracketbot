@@ -589,9 +589,9 @@ class Parser {
         $s1 = null;
       }
       if ($s1 !== $this->peg_FAILED) {
-        if ($this->input_substr($this->peg_currPos, 2) === $this->peg_c14) {
-          $s2 = $this->peg_c14;
-          $this->peg_currPos += 2;
+        if (peg_regex_test($this->peg_c14, $this->input_substr($this->peg_currPos, 1))) {
+          $s2 = $this->input_substr($this->peg_currPos, 1);
+          $this->peg_currPos++;
         } else {
           $s2 = $this->peg_FAILED;
           if ($this->peg_silentFails === 0) {
@@ -1220,6 +1220,9 @@ class Parser {
 
       $s0 = $this->peg_currPos;
       $s1 = $this->peg_parse_();
+      if ($s1 === $this->peg_FAILED) {
+        $s1 = null;
+      }
       if ($s1 !== $this->peg_FAILED) {
         $s2 = $this->peg_currPos;
         $s3 = $this->peg_currPos;
@@ -1366,8 +1369,8 @@ class Parser {
     $this->peg_c11 = array( "type" => "literal", "value" => "@", "description" => "\"@\"" );
     $this->peg_c12 = "at";
     $this->peg_c13 = array( "type" => "literal", "value" => "at", "description" => "\"at\"" );
-    $this->peg_c14 = ",(";
-    $this->peg_c15 = array( "type" => "literal", "value" => ",(", "description" => "\",(\"" );
+    $this->peg_c14 = "/^[,\\(]/";
+    $this->peg_c15 = array( "type" => "class", "value" => "[,(]", "description" => "[,(]" );
     $this->peg_c16 = "last";
     $this->peg_c17 = array( "type" => "literal", "value" => "last", "description" => "\"last\"" );
     $this->peg_c18 = "flip";

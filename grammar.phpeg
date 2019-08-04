@@ -24,7 +24,7 @@ At
  / _
   
 Comma
- = _? ",("
+ = _? [\,\(]
  
 Count
  = slice:Slice At cnt:PVECountSpec Comma? lag:ReportLag? {
@@ -108,7 +108,7 @@ Hours
  }
  
 ReportLag 
- =  _ lag:(hm:(Hours _? Minutes
+ =  _? lag:(hm:(Hours _? Minutes
  / Hours _? Digits) /*for omitting the minutes designator*/ {
   return $hm[0] . $hm[2];
  }
